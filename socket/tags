@@ -1,0 +1,38 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BUFSIZE	client.c	14;"	d	file:
+CLIEN_PORT	client.c	12;"	d	file:
+MAXIP	ntop_etc.c	16;"	d	file:
+MAXLINE	server.c	13;"	d	file:
+MAXLISTEN	server.c	14;"	d	file:
+SERVERPROT	server.c	15;"	d	file:
+SRVRIP	client.c	13;"	d	file:
+bit_check	bit_check.h	/^static inline void bit_check(void *num, int mod)$/;"	f
+func_socket	return_client.c	/^int func_socket(int domain, int type, int protocol)$/;"	f
+func_waitpid	multi_process_server.c	/^void func_waitpid(int signo) {$/;"	f
+main	bzero_etc.c	/^int main(int argc, char *argv[])$/;"	f
+main	client.c	/^main(int argc, char *argv[])$/;"	f
+main	client2.c	/^int main(int argc, char *argv[])  $/;"	f
+main	client3.c	/^main(void)$/;"	f
+main	data_types.c	/^int main(int agc, char *argv[])$/;"	f
+main	exec_switch_etc.c	/^int main(void)$/;"	f
+main	fork.c	/^int main(void)$/;"	f
+main	fork_wait_etc.c	/^int main(void)$/;"	f
+main	inet_ntoa.c	/^int main(void)$/;"	f
+main	inet_pton_etc.c	/^main(int argc, char *argv[])$/;"	f
+main	inet_pton_munal.c	/^main(int argc, char *argv[])$/;"	f
+main	memcpy_etc.c	/^int main(int argc, char *argv[])$/;"	f
+main	multi_process_server.c	/^int main(void)$/;"	f
+main	multil_ntoh.c	/^int main(int argc, char *argv[])$/;"	f
+main	ntop_etc.c	/^int main(int argc, char *argv[])$/;"	f
+main	return_client.c	/^main(int argc, char *argv[])$/;"	f
+main	return_server.c	/^main(int argc, char *argv[])$/;"	f
+main	server.c	/^int main(int argc, char *argv[])$/;"	f
+main	strcat.c	/^int main(int argc, char *argv[])$/;"	f
+main	vfork.c	/^int main(void)$/;"	f
+sigfunc	multi_process_server.c	/^typedef void sigfunc(int);$/;"	t	file:
+signal	multi_process_server.c	/^sigfunc* signal(int signo, sigfunc *func)$/;"	f
