@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
 	ret = sigismember(&set, SIGUSR1);
 	fprintf(stdout, "just not contain SIGUSR1, ret:%d\n", ret);
 
+	sigprocmask(0, NULL, &set);
+	fprintf(stdout, "I'm process mask value\n");
+	bit_check(&set, sizeof(sigset_t));
+
 	fprintf(stdout, "sizeof(set):%ld\n", sizeof(sigset_t));
 	return 0;
 }
