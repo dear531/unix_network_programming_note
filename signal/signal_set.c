@@ -31,5 +31,6 @@ int main(int argc, char *argv[])
 	bit_check(&set, sizeof(sigset_t));
 
 	fprintf(stdout, "sizeof(set):%ld\n", sizeof(sigset_t));
+
 	return 0;
 }
