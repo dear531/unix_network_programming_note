@@ -21,7 +21,13 @@ void sig_quit(int sinnum)
 {
 	/* sigquit function */
 	fprintf(stdout, "catch SIGQUIT\n");
-#if 1
+	int i;
+	for (i = 0; i < 10; i++)
+	{
+		fprintf(stdout, "sleep(%d)\n", i);
+		sleep(1);
+	}
+#if 0
 	/* restore system default  */
 	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
 		sys_err("set signal sinquit to SIN_DFL\n");
