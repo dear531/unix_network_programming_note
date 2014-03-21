@@ -39,17 +39,20 @@ int main(int argc, char *argv[])
 {
 	int ret;
 	sigset_t init, set, oldset, pendingset;
+#if 1
+	/* set function for signal quit */
+	if (signal(SIGQUIT, sig_quit) == SIG_ERR)
+		sys_err("set sig_quit function failed");
+#endif
+#if 1
 	/* set system mask */
 	if (sigfillset(&init) < 0)
 		sys_err("init fill mask error");
 	/* set unblock */
 	if (sigprocmask(SIG_SETMASK, &init, NULL) < 0)
 		sys_err("init system mask error");
-
-	/* set function for signal quit */
-	if (signal(SIGQUIT, sig_quit) == SIG_ERR)
-		sys_err("set sig_quit function failed");
-
+	fprintf(stdout, "block signal all\n");
+#else
 	/* add signal quit in mask */
 	if (sigemptyset(&set))
 		sys_err("empty mask error");
@@ -57,7 +60,8 @@ int main(int argc, char *argv[])
 		sys_err("add mask error");
 	if (sigprocmask(SIG_BLOCK, &set, &oldset) < 0)
 		sys_err("add signal and save old mask error");
-	fprintf(stdout, "set signal\n");
+	fprintf(stdout, "block signal SIGQUIT\n");
+#endif
 
 	/* should need signal kill */
 	sleep(5);
@@ -83,7 +87,7 @@ int main(int argc, char *argv[])
 		if (sigprocmask(SIG_SETMASK, &oldset, NULL) < 0)
 			sys_err("set old mask error");
 #endif
-		fprintf(stdout, "del signal\n");
+		fprintf(stdout, "unblock signal SIGQUIT\n");
 	}
 	else if (ret == 0)
 	{
