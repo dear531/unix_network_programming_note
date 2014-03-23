@@ -9,7 +9,7 @@ void pr_mask(char *prompt)
 	save_errno = errno;
 
 	sigprocmask(0, NULL, &set);
-	fprintf(stdout ,"in %s : ", prompt);
+	fprintf(stdout ,"%s : ", prompt);
 #if 1
 	if (sigismember(&set, SIGHUP)) fprintf(stdout, "SIGHUP ");
 	if (sigismember(&set, SIGINT)) fprintf(stdout, "SIGINT ");
