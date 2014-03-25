@@ -15,6 +15,7 @@ int str_cli(int *fd, int n)
 	char buf[1024];
 	int m;
 	int prev;
+	int count;
 	for (i = 0; i < n; i++)
 		fprintf(stdout, "fd[%d]:%d\n", i, fd[i]);
 	bzero(buf, 1024);
@@ -28,8 +29,8 @@ int str_cli(int *fd, int n)
 		}
 
 		ret = select(fd[n - 1] + 1, &rset, NULL, NULL, NULL);
-		fprintf(stdout, "str_cli ret:%d\n", ret);
 
+		count = 0;
 		for (i = 0; i < n; i++)
 		{
 			if (FD_ISSET(fd[i], &rset))
@@ -37,11 +38,15 @@ int str_cli(int *fd, int n)
 				do
 				{
 					m = recv(fd[i], buf, 1024, 0);
-					fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
 					if (prev > m)
+					{
 						bzero(buf, prev - m);
+					}
+					fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
 					prev = m;
 				}while(m == 1024);
+				if (++count == ret)
+					break;
 			}
 		}
 	}
