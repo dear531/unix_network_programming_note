@@ -21,43 +21,64 @@ int str_cli(int *fd, int n)
 		fprintf(stdout, "fd[%d]:%d\n", i, fd[i]);
 	bzero(buf, 1024);
 	prev = 0;
+	fd_set rset;
+	fd_set wset;
+	int flags;
+	char prompt[1024];
 	for ( ; ; )
 	{
-		fd_set rset;
 		FD_ZERO(&rset);
+		FD_ZERO(&wset);
 		for (i = 0; i < n; i++)
+		{
 			FD_SET(fd[i], &rset);
+			FD_SET(fd[i], &wset);
+		}
 
-		ret = select(fd[n - 1] + 1, &rset, NULL, NULL, NULL);
+		ret = select(fd[n - 1] + 1, &rset, &wset, NULL, NULL);
 
 		count = 0;
 		for (i = 0; i < n; i++)
 		{
-			if (!FD_ISSET(fd[i], &rset))
-				continue;
+			flags = 0;
+			if (FD_ISSET(fd[i], &rset))
+			{
 readagain:
-			m = recv(fd[i], buf, 1024, 0);
-			if (m < 0)
-				fprintf(stdout, "recv error:%s\n", strerror(errno));
-			else if (m == 0)
-				fprintf(stdout, "peer pointer cloese\n");
+				m = recv(fd[i], buf, 1024, 0);
+				if (m < 0)
+					fprintf(stdout, "recv error:%s\n", strerror(errno));
+				else if (m == 0)
+					fprintf(stdout, "peer pointer cloese\n");
 
-			/* handle receive buffer remains */
-			if (m >= 0 && prev > m)
-				bzero(buf + m, prev - m);
+				/* handle receive buffer remains */
+				if (m >= 0 && prev > m)
+					bzero(buf + m, prev - m);
 
-			/* recore previous length of buffer */
-			if (m >= 0 && prev != m)
-				prev = m;
-			fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
+				/* recore previous length of buffer */
+				if (m >= 0 && prev != m)
+					prev = m;
+				fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
 
-			/* check isn't read end */
-			if (m == 1024)
-				goto readagain;
+				/* check isn't read end */
+				if (m == 1024)
+					goto readagain;
 
-			/* check number of descriptor */
-			if (++count == ret)
-				break;
+				flags = 1;
+
+				/* check number of descriptor */
+				if (++count == ret)
+					break;
+			}
+			if (FD_ISSET(fd[i], &wset) && flags)
+			{
+				flags = 0;
+				sprintf(prompt, "receive buff %d byte\n", m);
+				send(fd[i], prompt, strlen(prompt), 0);
+
+				/* check number of descriptor */
+				if (++count == ret)
+					break;
+			}
 		}
 	}
 	return 0;
