@@ -25,21 +25,30 @@ int str_cli(int *fd, int n)
 	fd_set wset;
 	int flags;
 	char prompt[1024];
+	int countfd;
 	for ( ; ; )
 	{
 		FD_ZERO(&rset);
 		FD_ZERO(&wset);
+		countfd = 0;
 		for (i = 0; i < n; i++)
 		{
+			if (fd[i] == -1)
+				continue;
 			FD_SET(fd[i], &rset);
 			FD_SET(fd[i], &wset);
+			countfd++;
 		}
+		if (countfd == 0)
+			break;
 
 		ret = select(fd[n - 1] + 1, &rset, &wset, NULL, NULL);
 
 		count = 0;
 		for (i = 0; i < n; i++)
 		{
+			if (fd[i] == -1)
+				continue;
 			flags = 0;
 			if (FD_ISSET(fd[i], &rset))
 			{
@@ -48,7 +57,11 @@ readagain:
 				if (m < 0)
 					fprintf(stdout, "recv error:%s\n", strerror(errno));
 				else if (m == 0)
+				{
 					fprintf(stdout, "peer pointer cloese\n");
+					close(fd[i]);
+					fd[i] = -1;
+				}
 
 				/* handle receive buffer remains */
 				if (m >= 0 && prev > m)
@@ -59,9 +72,11 @@ readagain:
 					prev = m;
 				fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
 
+#if 0
 				/* check isn't read end */
 				if (m == 1024)
 					goto readagain;
+#endif
 
 				flags = 1;
 
@@ -141,6 +156,8 @@ main(int argc, char *argv[])
 	str_cli(connfd, MAXFD);
 	for (i = 0; i < MAXFD; i++)
 	{
+		if (connfd[i] == -1)
+			continue;
 		close(connfd[i]);
 		connfd[i] = -1;
 	}
