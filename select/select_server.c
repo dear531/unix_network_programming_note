@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <errno.h>
 
 
 #if 1
@@ -19,14 +20,13 @@ int str_cli(int *fd, int n)
 	for (i = 0; i < n; i++)
 		fprintf(stdout, "fd[%d]:%d\n", i, fd[i]);
 	bzero(buf, 1024);
+	prev = 0;
 	for ( ; ; )
 	{
 		fd_set rset;
 		FD_ZERO(&rset);
 		for (i = 0; i < n; i++)
-		{
 			FD_SET(fd[i], &rset);
-		}
 
 		ret = select(fd[n - 1] + 1, &rset, NULL, NULL, NULL);
 
@@ -38,12 +38,15 @@ int str_cli(int *fd, int n)
 				do
 				{
 					m = recv(fd[i], buf, 1024, 0);
-					if (prev > m)
-					{
-						bzero(buf, prev - m);
-					}
+					if (m < 0)
+						fprintf(stdout, "recv error:%s\n", strerror(errno));
+					else if (m == 0)
+						fprintf(stdout, "peer pointer cloese\n");
+					if (m >= 0 && prev > m)
+						bzero(buf + m, prev - m);
+					if (m >= 0 && prev != m)
+						prev = m;
 					fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
-					prev = m;
 				}while(m == 1024);
 				if (++count == ret)
 					break;
