@@ -33,24 +33,31 @@ int str_cli(int *fd, int n)
 		count = 0;
 		for (i = 0; i < n; i++)
 		{
-			if (FD_ISSET(fd[i], &rset))
-			{
-				do
-				{
-					m = recv(fd[i], buf, 1024, 0);
-					if (m < 0)
-						fprintf(stdout, "recv error:%s\n", strerror(errno));
-					else if (m == 0)
-						fprintf(stdout, "peer pointer cloese\n");
-					if (m >= 0 && prev > m)
-						bzero(buf + m, prev - m);
-					if (m >= 0 && prev != m)
-						prev = m;
-					fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
-				}while(m == 1024);
-				if (++count == ret)
-					break;
-			}
+			if (!FD_ISSET(fd[i], &rset))
+				continue;
+readagain:
+			m = recv(fd[i], buf, 1024, 0);
+			if (m < 0)
+				fprintf(stdout, "recv error:%s\n", strerror(errno));
+			else if (m == 0)
+				fprintf(stdout, "peer pointer cloese\n");
+
+			/* handle receive buffer remains */
+			if (m >= 0 && prev > m)
+				bzero(buf + m, prev - m);
+
+			/* recore previous length of buffer */
+			if (m >= 0 && prev != m)
+				prev = m;
+			fprintf(stdout, "fd:%d, buf:%s", fd[i], buf);
+
+			/* check isn't read end */
+			if (m == 1024)
+				goto readagain;
+
+			/* check number of descriptor */
+			if (++count == ret)
+				break;
 		}
 	}
 	return 0;
@@ -76,7 +83,7 @@ void tmpfunc(int *connfd, int num)
 	return;
 }
 #define MAXFD	2
-int
+	int
 main(int argc, char *argv[])
 {
 	int ret;
@@ -109,7 +116,7 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
-//	tmpfunc(connfd, MAXFD);
+	//	tmpfunc(connfd, MAXFD);
 	str_cli(connfd, MAXFD);
 	for (i = 0; i < MAXFD; i++)
 	{
@@ -118,6 +125,6 @@ main(int argc, char *argv[])
 	}
 	close(listfd);
 	listfd = -1;
-	
+
 	return 0;
 }
