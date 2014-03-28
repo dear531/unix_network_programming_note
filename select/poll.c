@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 	fds[0].events = POLLIN;
 	for ( ; ; )
 	{
-#if 1
+#if 0
 		fprintf(stdout, "maxi :%d\n", maxi);
 		for (i = 0; i < 1024; i++)
 		{
@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
 		/* client handle */
 		for (i = 1; i <= maxi; i++)
 		{
-			if (!(fds[i].revents & POLLIN))
+			fprintf(stdout, "(fds[i].revents & POLLIN) == 0 :%d\n", (fds[i].revents & POLLIN) == 0);
+			fprintf(stdout, "fds[i].revents & POLLIN == 0 :%d\n", fds[i].revents & POLLIN == 0);
+			if ((fds[i].revents & POLLIN) == 0)
 				continue;
 			/* read client descript handle */
 			bzero(buf, sizeof(buf));
