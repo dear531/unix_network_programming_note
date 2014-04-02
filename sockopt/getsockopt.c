@@ -35,6 +35,18 @@ int main(int argc, char *argv[])
 	getsockopt(udpfd, SOL_SOCKET, SO_SNDBUF, &optval, &optlen);
 	fprintf(stdout, "socket udp send buf size :%d\n", optval);
 	
+	getsockopt(fd, SOL_SOCKET, SO_RCVLOWAT, &optval, &optlen);
+	fprintf(stdout, "socket receive lowat :%d\n", optval);
+
+	getsockopt(fd, SOL_SOCKET, SO_SNDLOWAT, &optval, &optlen);
+	fprintf(stdout, "socket sned lowat :%d\n", optval);
+	
+	getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &optval, &optlen);
+	fprintf(stdout, "socket sned lowat :%d\n", optval);
+
+	struct timeval timeopt;
+	getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeopt, &optlen);
+	fprintf(stdout, "time out sec:%ld, usec:%ld\n", timeopt.tv_sec, timeopt.tv_usec);
 
 	return 0;
 }
