@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "ret :%d\n", ret);
 	fprintf(stdout, "this is after connect\n");
 #endif
+	connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
 	int i;
 	for (i = 0; i < 1024; i++)
 		sbuf[i] = '0' + i % 10;
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 # endif
 #endif
 	}
+	sleep(100);
 	fprintf(stdout, "i :%d\n", i);
 	free(pcmpsaddr);
 	pcmpsaddr = NULL;
