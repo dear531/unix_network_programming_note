@@ -23,8 +23,26 @@ int main(int argc, char *argv[])
 	int saddrlen;
 	struct sockaddr * pcmpsaddr;
 	pcmpsaddr = malloc(sizeof(saddr));
+#if 1
+	int ret;
+	fprintf(stdout, "this is before connect\n");
+	ret = connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
+	if (ret < 0)
+		fprintf(stdout, "connect server error: %s\n", strerror(errno));
+	fprintf(stdout, "ret :%d\n", ret);
+	fprintf(stdout, "this is after connect\n");
+#endif
 	while(bzero(sbuf, sizeof(sbuf)), (gets(sbuf)) != NULL)
 	{
+#if 1
+		//n = send(udpfd, sbuf, strlen(sbuf), 0);
+		n = read(udpfd, sbuf, strlen(sbuf));
+		if (n < 0)
+			fprintf(stdout, "send error :%s\n", strerror(errno));
+		fprintf(stdout, "send sbuf :%s\n", sbuf);
+		
+		recv(udpfd, rbuf, sizeof(rbuf), 0);
+#else
 		fprintf(stdout, "input sbuf :%s\n", sbuf);
 		sendto(udpfd, sbuf, strlen(sbuf), 0, (struct sockaddr*)&saddr, sizeof(saddr));
 		bzero(rbuf, sizeof(rbuf));
@@ -35,6 +53,7 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "udp recv error: %s\n", strerror(errno));
 		if (saddrlen == sizeof(saddr) && bcmp(pcmpsaddr, &saddr, saddrlen) == 0)
 			fprintf(stdout, "received buf :%s strlen %d\n", rbuf, n);
+#endif
 	}
 	free(pcmpsaddr);
 	close(udpfd);
