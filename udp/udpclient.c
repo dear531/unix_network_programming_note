@@ -8,7 +8,6 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-
 int main(int argc, char *argv[])
 {
 	int udpfd;
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
 	int saddrlen;
 	struct sockaddr * pcmpsaddr;
 	pcmpsaddr = malloc(sizeof(saddr));
-#define UDP_CONNECT	1
+#define UDP_CONNECT	0
 #if UDP_CONNECT
 	/* understood */
 	/* 
@@ -38,7 +37,10 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "ret :%d\n", ret);
 	fprintf(stdout, "this is after connect\n");
 #endif
-	while(bzero(sbuf, sizeof(sbuf)), (gets(sbuf)) != NULL)
+	int i;
+	for (i = 0; i < 1024; i++)
+		sbuf[i] = '0' + i % 10;
+	for (i = 0; i < 2000; i++)
 	{
 #if UDP_CONNECT
 		//n = send(udpfd, sbuf, strlen(sbuf), 0);
@@ -49,8 +51,10 @@ int main(int argc, char *argv[])
 		
 		recv(udpfd, rbuf, sizeof(rbuf), 0);
 #else
-		fprintf(stdout, "input sbuf :%s\n", sbuf);
+		//fprintf(stdout, "input sbuf :%s\n", sbuf);
 		sendto(udpfd, sbuf, strlen(sbuf), 0, (struct sockaddr*)&saddr, sizeof(saddr));
+		//fprintf(stdout, "isnot?!\n");
+# if 0
 		bzero(rbuf, sizeof(rbuf));
 		saddrlen = sizeof(saddr);
 		bzero(pcmpsaddr, sizeof(saddr));
@@ -59,9 +63,13 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "udp recv error: %s\n", strerror(errno));
 		if (saddrlen == sizeof(saddr) && bcmp(pcmpsaddr, &saddr, saddrlen) == 0)
 			fprintf(stdout, "received buf :%s strlen %d\n", rbuf, n);
+# endif
 #endif
 	}
+	fprintf(stdout, "i :%d\n", i);
 	free(pcmpsaddr);
+	pcmpsaddr = NULL;
 	close(udpfd);
+	udpfd = -1;
 	return;
 }
