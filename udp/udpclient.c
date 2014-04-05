@@ -23,7 +23,13 @@ int main(int argc, char *argv[])
 	int saddrlen;
 	struct sockaddr * pcmpsaddr;
 	pcmpsaddr = malloc(sizeof(saddr));
-#if 1
+#define UDP_CONNECT	1
+#if UDP_CONNECT
+	/* understood */
+	/* 
+	 * understood: read returned value error,
+	 * when set connect for udp and server unrun, client run.
+	 */
 	int ret;
 	fprintf(stdout, "this is before connect\n");
 	ret = connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
@@ -34,9 +40,9 @@ int main(int argc, char *argv[])
 #endif
 	while(bzero(sbuf, sizeof(sbuf)), (gets(sbuf)) != NULL)
 	{
-#if 1
+#if UDP_CONNECT
 		//n = send(udpfd, sbuf, strlen(sbuf), 0);
-		n = read(udpfd, sbuf, strlen(sbuf));
+		n = write(udpfd, sbuf, strlen(sbuf));
 		if (n < 0)
 			fprintf(stdout, "send error :%s\n", strerror(errno));
 		fprintf(stdout, "send sbuf :%s\n", sbuf);
