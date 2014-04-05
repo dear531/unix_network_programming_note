@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
 	int count = 0;
 again:
 	n = recv(fd, buf, strlen(buf) < sizeof(buf) ? strlen(buf) : sizeof(buf), 0);
+	/* understood */
 	//n = read(fd, buf, strlen(buf) < sizeof(buf) ? strlen(buf) : sizeof(buf));
 	if (n == -1 && errno == EAGAIN)
 	{
