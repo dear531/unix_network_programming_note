@@ -74,6 +74,16 @@ int main(int argc, char *argv[])
 		inet_ntop(AF_INET, &paddr.sin_addr, pipbuf);
 		fprintf(stdout, "peer host addr:%s, port:%d\n", pipbuf, ntohs(paddr.sin_port));
 		sleep(1);
+		if (i == 20)
+		{
+			bzero(&saddr, sizeof(saddr));
+			saddr.sin_family = AF_INET;
+			saddr.sin_port = htons(8000);
+			inet_pton(AF_INET, "192.168.1.111", &saddr.sin_addr);
+			ret = connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
+			if (ret < 0)
+				fprintf(stdout, "connect server error: %s\n", strerror(errno));
+		}
 	}
 	sleep(100);
 	fprintf(stdout, "i :%d\n", i);

@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
 	struct sockaddr_in saddr, caddr;
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(8000);
-	inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
+	saddr.sin_addr.s_addr = INADDR_ANY;
+	//inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
 	bind(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
 	int caddrlen;
 	char rbuf[1024], sbuf[1024];
