@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	int saddrlen;
 	struct sockaddr * pcmpsaddr;
 	pcmpsaddr = malloc(sizeof(saddr));
-#define UDP_CONNECT	0
+#define UDP_CONNECT	1
 #if UDP_CONNECT
 	/* understood */
 	/* 
@@ -37,7 +37,9 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "ret :%d\n", ret);
 	fprintf(stdout, "this is after connect\n");
 #endif
-	connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
+	struct sockaddr_in laddr, paddr;
+	socklen_t laddrlen = sizeof(laddr), paddrlen = sizeof(paddr);
+	char lipbuf[16], pipbuf[16];
 	int i;
 	for (i = 0; i < 1024; i++)
 		sbuf[i] = '0' + i % 10;
@@ -50,7 +52,8 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "send error :%s\n", strerror(errno));
 		fprintf(stdout, "send sbuf :%s\n", sbuf);
 		
-		recv(udpfd, rbuf, sizeof(rbuf), 0);
+		//recv(udpfd, rbuf, sizeof(rbuf), 0);
+
 #else
 		//fprintf(stdout, "input sbuf :%s\n", sbuf);
 		sendto(udpfd, sbuf, strlen(sbuf), 0, (struct sockaddr*)&saddr, sizeof(saddr));
@@ -66,6 +69,16 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "received buf :%s strlen %d\n", rbuf, n);
 # endif
 #endif
+		getsockname(udpfd, (struct sockaddr*)&laddr, &laddrlen);
+		bzero(lipbuf, sizeof(lipbuf));
+		inet_ntop(AF_INET, &laddr.sin_addr, lipbuf);
+		fprintf(stdout, "load host addr:%s, port:%d\n", lipbuf, ntohs(laddr.sin_port));
+
+		getpeername(udpfd, (struct sockaddr*)&paddr, &paddrlen);
+		bzero(pipbuf, sizeof(pipbuf));
+		inet_ntop(AF_INET, &paddr.sin_addr, pipbuf);
+		fprintf(stdout, "peer host addr:%s, port:%d\n", pipbuf, ntohs(paddr.sin_port));
+		sleep(1);
 	}
 	sleep(100);
 	fprintf(stdout, "i :%d\n", i);
