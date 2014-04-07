@@ -101,9 +101,9 @@ int main(int argc, char *argv[])
 	char buf[128];
 	int count = 0;
 again:
-	n = recv(fd, buf, strlen(buf) < sizeof(buf) ? strlen(buf) : sizeof(buf), 0);
-	/* understood */
-	//n = read(fd, buf, strlen(buf) < sizeof(buf) ? strlen(buf) : sizeof(buf));
+	//n = recv(fd, buf, sizeof(buf), 0);
+	n = read(fd, buf, sizeof(buf));
+	fprintf(stdout, "read buf :%s, buflen :%d, errno :%d\n", buf, n, errno);
 	if (n == -1 && errno == EAGAIN)
 	{
 		if (errno == EAGAIN && count < 10)
@@ -116,7 +116,6 @@ again:
 		fprintf(stdout, "read error :%s\n",strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stdout, "read buf :%s, buflen :%d\n", buf, n);
 
 	/* close file discriptor */
 	close(fd);
