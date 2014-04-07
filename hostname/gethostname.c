@@ -12,11 +12,13 @@ int main(int argc, char *argv[])
 {
 	struct hostent *phost, host;
 	char **pptr = NULL, *ptr = NULL;
+	struct hostent *pptmp = NULL;
 	char daddr[16];
 	int ret;
+	int flag = 0;
 	while(--argc > 0)
 	{
-#if 0
+#if 1
 		phost = gethostbyname(argv[argc]);
 		/* 
 		 * $ ./a.out www.hao123.com
@@ -58,6 +60,23 @@ int main(int argc, char *argv[])
 			fprintf(stdout, "error :%s\n", hstrerror(h_errno));
 			continue;
 		}
+		if (!flag++)
+		{
+			pptmp = phost;
+			fprintf(stdout, "assign argv[%d]:%s\n", argc, argv[argc]);
+		}
+		fprintf(stdout, "**argv[%d]:%s name :%s addr :%p\n",
+				argc, argv[argc], pptmp->h_name, pptmp);
+		/* 
+		 * addr not change, but pointer contain change
+		 * $ ./a.out www.hao123.com www.baidu.com
+		 * ......
+		 * **argv[2]:www.baidu.com name :www.a.shifen.com addr :0x7f6075fd2f20 //first show
+		 * ......
+		 * **argv[1]:www.hao123.com name :hao123.n.shifen.com addr :0x7f6075fd2f20 // second show
+		 * ......
+		 * this is overwritten, should peed copy.
+		 */
 		host = *phost;
 		fprintf(stdout, "official name :%s\n", host.h_name);
 		fprintf(stdout, "alias list :");
