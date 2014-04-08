@@ -90,11 +90,24 @@ again:
 		fprintf(stdout, "next addr\n");
 		goto again;
 	}
-	char sbuf[1024];
-	sprintf(sbuf, "GET / HTTP/1.1\n\nHOST: index.html\n\nAccept-Encoding:\n\n\n\n\n", argv[2]);
-	send(confd, sbuf, strlen(sbuf), 0);
-	char rbuf[1024];
+	char *sbuf[] = {
+			"GET / HTTP/1.1\r\r",
+			"Host: www.hao123.com\r\r",
+			"Connection: keep-alive\r\r",
+			"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\r",
+			"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36\r\r",
+			"Accept-Encoding: gzip,deflate,sdch\r\r",
+			"Accept-Language: zh-CN,zh;q=0.8\r\r",
+			"Cookie: bdshare_firstime=1370829194578; BAIDUID=2D832A914EFF6E341F16E76A489D03CC:FG=1; FLASHID=0EB13682FDD63510AE5353808E9152C5:FG=1; ftip=1; Hm_lvt_22661fc940aadd927d385f4a67892bc3=1388973790,1390724801; static=1; HUM=; HUN= ",
+			};
+	//sprintf(sbuf, "", argv[2]);
+	for (i = 0; i < sizeof(sbuf) / sizeof(*sbuf); i++)
+	{
+		send(confd, sbuf[i], strlen(sbuf[i]), 0);
+		fprintf(stdout, "sbuf[%d]:%s\n", i, sbuf[i]);
+	}
 	int n;
+	char rbuf[1024];
 	while(bzero(rbuf, sizeof(rbuf)),(n = recv(confd, rbuf, sizeof(sbuf), 0)) > 0)
 		fprintf(stdout, "%s", rbuf);
 
