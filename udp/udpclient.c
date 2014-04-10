@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 	int saddrlen;
 	struct sockaddr * pcmpsaddr;
 	pcmpsaddr = malloc(sizeof(saddr));
-#define UDP_CONNECT	1
-#if UDP_CONNECT
 	int ret;
+#define UDP_CONNECT	0
+#if UDP_CONNECT
 	ret = connect(udpfd, (struct sockaddr*)&saddr, sizeof(saddr));
 	if (ret < 0)
 		fprintf(stdout, "connect server error: %s\n", strerror(errno));
@@ -51,7 +51,9 @@ int main(int argc, char *argv[])
 
 #else
 		//fprintf(stdout, "input sbuf :%s\n", sbuf);
-		sendto(udpfd, sbuf, strlen(sbuf), 0, (struct sockaddr*)&saddr, sizeof(saddr));
+		//sendto(udpfd, sbuf, strlen(sbuf), 0, (struct sockaddr*)&saddr, sizeof(saddr));
+		sendto(udpfd, sbuf, 0, 0, (struct sockaddr*)&saddr, sizeof(saddr));
+		fprintf(stdout, "port :%d\n", ntohs(saddr.sin_port));
 		//fprintf(stdout, "isnot?!\n");
 # if 0
 		bzero(rbuf, sizeof(rbuf));

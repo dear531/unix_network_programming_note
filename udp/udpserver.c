@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 		caddrlen = sizeof(caddr);
 		bzero(rbuf, sizeof(rbuf));
 		recvfrom(udpfd, rbuf, sizeof(rbuf), 0, (struct sockaddr*)&caddr, &caddrlen);
+		fprintf(stdout, "received client data length %ld bytes\n", (long)strlen(rbuf));
 #if 0
 		bcopy(rbuf, sbuf, strlen(rbuf));
 		bzero(sbuf + strlen(rbuf), sizeof(sbuf) - strlen(rbuf));
