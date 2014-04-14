@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	bzero(&dsaddr, sizeof(dsaddr));
 	dsaddr.sun_family = AF_UNIX;
 	bcopy("1.foo", dsaddr.sun_path, sizeof("1.foo"));
-	if (bind(fd, (struct sockaddr*)&dsaddr, sizeof(dsaddr)) < 0)
+	if (bind(fd, (struct sockaddr*)&dsaddr, sizeof(dsaddr) - 1) < 0)
 		fprintf(stdout, "bind error %s\n", strerror(errno));
 	struct sockaddr_un dgaddr;
 	bzero(&dgaddr, sizeof(dgaddr));
