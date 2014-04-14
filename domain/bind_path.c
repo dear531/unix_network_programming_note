@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 	int fd;
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
 		fprintf(stdout, "socket error :%s\n", strerror(errno));
+	unlink("1.foo");
 
 	struct sockaddr_un dsaddr;
 	bzero(&dsaddr, sizeof(dsaddr));
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
 	if (getsockname(fd, (struct sockaddr*)&dgaddr, &dlen) < 0)
 		fprintf(stdout, "getsockname error :%s\n", strerror(errno));
 	fprintf(stdout, "pathname:%s, dlen :%d\n", dgaddr.sun_path, dlen);
-	sleep(10);
+	//sleep(10);
 	unlink("1.foo");
 
 		return 0;
