@@ -7,6 +7,7 @@
 #include <sys/un.h>
 #include <strings.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 int main(int argc, char *argv[])
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	struct sockaddr_un un_caddr;
-	int clen = sizeof(un_caddr);
+	socklen_t clen = sizeof(un_caddr);
 	pid_t pid;
 	char rbuf[1024], sbuf[1024];
 	int count;

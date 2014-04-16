@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <errno.h>
+#include <strings.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/un.h>
+
+
+int main(int argc, char *arg[])
+{
+	int cofd;
+	if ((cofd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0)
+	{
+		fprintf(stdout, "socket error :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	int ret;
+	struct sockaddr_un usaddr;
+	usaddr.sun_family = AF_LOCAL;
+	bcopy("unix_tmp", usaddr.sun_path, sizeof("unix_tmp"));
+	if ((ret = connect(cofd, (struct sockaddr*)&usaddr, sizeof(usaddr))) < 0)
+	{
+		fprintf(stdout, "connect error :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	char sbuf[1024], rbuf[1024];
+	int i;
+	for (i = 0; i < 10; i++)
+	{
+		bzero(sbuf, sizeof(sbuf));
+		sbuf[0] = '0' + i;
+		send(cofd, sbuf, sizeof(sbuf), 0);
+		fprintf(stdout, "sbuf :%s\n", sbuf);
+		bzero(rbuf, sizeof(rbuf));
+		recv(cofd, rbuf, sizeof(sbuf), 0);
+		fprintf(stdout, "rbuf :%s\n", rbuf);
+	}
+	return 0;
+}
