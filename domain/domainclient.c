@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/un.h>
+#include <unistd.h>
 
 
 int main(int argc, char *arg[])
@@ -35,7 +36,33 @@ int main(int argc, char *arg[])
 		send(cofd, sbuf, sizeof(sbuf), 0);
 		fprintf(stdout, "sbuf :%s\n", sbuf);
 		bzero(rbuf, sizeof(rbuf));
-		recv(cofd, rbuf, sizeof(sbuf), 0);
+tryagain:
+		if ((ret = recv(cofd, rbuf, sizeof(sbuf), MSG_DONTWAIT)) > 0)
+		{
+			fprintf(stdout, "rbuf :%s\n", sbuf);
+		}
+		else if (ret == 0)
+		{
+			fprintf(stdout, "peer close \n");
+			close(cofd);
+			cofd = -1;
+			exit(EXIT_FAILURE);
+		}
+		else if (errno == EAGAIN)
+		{
+			fprintf(stdout, "try again\n");
+			sleep(1);
+			goto tryagain;
+		}
+		else
+		{
+			fprintf(stdout, "received error :%s\n", strerror(errno));
+			close(cofd);
+			cofd = -1;
+			exit(EXIT_FAILURE);
+			
+		}
+			
 		fprintf(stdout, "rbuf :%s\n", rbuf);
 	}
 	return 0;

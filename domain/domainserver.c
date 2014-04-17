@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 				bzero(sbuf, sizeof(sbuf));
 				sprintf(sbuf, "received counter :%d\n", count++);
 				send(cofd, sbuf, strlen(sbuf), 0);
-				sleep(20);
+				sleep(10);
 			}
 			if (ret == 0)
 				fprintf(stdout, "client close\n");
