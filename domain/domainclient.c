@@ -20,7 +20,7 @@ int main(int argc, char *arg[])
 	int ret;
 	struct sockaddr_un usaddr;
 	usaddr.sun_family = AF_LOCAL;
-	bcopy("unix_tmp", usaddr.sun_path, sizeof("unix_tmp"));
+	bcopy("/tmp/unix_tmp", usaddr.sun_path, sizeof("/tmp/unix_tmp"));
 	if ((ret = connect(cofd, (struct sockaddr*)&usaddr, sizeof(usaddr))) < 0)
 	{
 		fprintf(stdout, "connect error :%s\n", strerror(errno));

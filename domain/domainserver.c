@@ -9,12 +9,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-
+#define UNIX_PATH	"/tmp/unix_tmp"
+void sin_int(int signum)
+{
+	int sa_er;
+	sa_er = errno;
+	unlink(UNIX_PATH);
+	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
+		fprintf(stdout, "set SIGINT SIG_DFL failed\n");
+	errno = sa_er;
+	return;
+}
 int main(int argc, char *argv[])
 {
 	/* signal ignore SIGCHLD */
 	if (signal(SIGCHLD, SIG_IGN) == SIG_ERR)
 		fprintf(stdout, "set ignore failed\n");
+	if (signal(SIGINT, sin_int) == SIG_ERR)
+		fprintf(stdout, "set SIGINT failed\n");
 	/* socket */
 	int lifd, cofd;
 	if ((lifd = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0)
@@ -23,7 +35,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	/* bind */
-#define UNIX_PATH	"unix_tmp"
 	char * fpath = UNIX_PATH;
 	int ret;
 	struct sockaddr_un un_addr;
@@ -65,6 +76,7 @@ int main(int argc, char *argv[])
 		else if (pid > 0)
 		{
 			/* perent operation */
+			unlink(UNIX_PATH);
 			close(cofd);
 			cofd = -1;
 		}
@@ -79,6 +91,7 @@ int main(int argc, char *argv[])
 				bzero(sbuf, sizeof(sbuf));
 				sprintf(sbuf, "received counter :%d\n", count++);
 				send(cofd, sbuf, strlen(sbuf), 0);
+				sleep(20);
 			}
 			if (ret == 0)
 				fprintf(stdout, "client close\n");
