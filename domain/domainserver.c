@@ -20,6 +20,11 @@ void sin_int(int signum)
 	errno = sa_er;
 	return;
 }
+static inline int
+min(int m, int n)
+{
+	return (m < n ? m : n);
+}
 int main(int argc, char *argv[])
 {
 	/* signal ignore SIGCHLD */
@@ -38,10 +43,9 @@ int main(int argc, char *argv[])
 	char * fpath = UNIX_PATH;
 	int ret;
 	struct sockaddr_un un_addr;
+	bzero(&un_addr, sizeof(un_addr));
 	un_addr.sun_family = AF_LOCAL;
-	bzero(un_addr.sun_path, sizeof(un_addr.sun_path));
-	bcopy(fpath, un_addr.sun_path, strlen(fpath) > sizeof(un_addr.sun_path) - 1	\
-			? sizeof(un_addr.sun_path) - 1 : strlen(fpath));
+	bcopy(fpath, un_addr.sun_path, min(strlen(fpath), sizeof(un_addr.sun_path) - 1));
 	unlink(fpath);
 	if ((ret = bind(lifd, (struct sockaddr*)&un_addr, sizeof(un_addr))) < 0)
 	{
