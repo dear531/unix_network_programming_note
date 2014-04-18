@@ -6,6 +6,35 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/socket.h>
+
+int write_fd(int fd, void *prt, int nbytes, int sendfd)
+{
+	struct msghdr msg;
+	struct iovec iov[1];
+	iov[0].iov_base = prt;
+	iov[0].iov_len = nbytes;
+	union
+	{
+	struct cmsghdr cm;
+	char control[CMSG_SPACE(sizeof(int))];
+	}control_un;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = iov;
+	msg.msg_iovlen = sizeof(iov) / sizeof(*iov);
+	msg.msg_control = control_un.control;
+	msg.msg_controllen = sizeof(control_un.control);
+	struct cmsghdr * csmgp;
+	csmgp = CMSG_FIRSTHDR(&msg);
+	csmgp->cmsg_len = CMSG_LEN(sizeof(int));
+	csmgp->cmsg_level = SOL_SOCKET;
+	csmgp->cmsg_type = SCM_RIGHTS;
+	*((int *)CMSG_DATA(csmgp)) = sendfd;
+	/* maybe same number file discrptor with received fd function */
+	fprintf(stdout, "*((int *)CMSG_DATA(csmgp)) :%d\n", *((int *)CMSG_DATA(csmgp)));
+	return (sendmsg(fd, &msg, 0));
+}
 
 int main(int argc, char *argv[])
 {
@@ -16,23 +45,17 @@ int main(int argc, char *argv[])
 	}
 	int ifd;
 	ifd = strtol(argv[1], NULL, 10);
-	fprintf(stdout, "ifd :%d\n", ifd);
 
 	char *file = "1.txt";
 	int fd;
-#define DEBUG	1
-#if DEBUG
-	bzero(file, 2000);
-#endif
 	if ((fd = open(file, O_RDWR | O_CREAT | O_APPEND, S_IRWXU)) < 0)
 	{
-		fprintf(stdout, "open %s failed\n", file);
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
+
+	write_fd(ifd, "", sizeof(""), fd);
+
 	close(fd);
-#if DEBUG
-	sleep(50);
-#endif
 	return 0;
 }

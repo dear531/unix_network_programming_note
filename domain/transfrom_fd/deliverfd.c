@@ -6,9 +6,64 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+int read_fd(int fd, void *ptr, int nbytes, int *recv_fd)
+{
+	struct iovec iov[1];
+	iov[0].iov_base = ptr;
+	iov[0].iov_len = nbytes;
 
+	union{
+	struct cmsghdr cm;
+	char control[CMSG_SPACE(sizeof(int))];
+	}control_un;
+
+	struct msghdr msg;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	msg.msg_iov = iov;
+	msg.msg_iovlen = sizeof(iov) / sizeof(*iov);
+	msg.msg_control = control_un.control;
+	msg.msg_controllen = sizeof(control_un.control);
+	int n;
+	n = recvmsg(fd, &msg, 0);
+	fprintf(stdout, "n :%d\n", n);
+	if (n < 0)
+	{
+		fprintf(stdout, "recvmsg error :%s\n", strerror(errno));
+		goto failed;
+	}
+	else if (n == 0)
+	{
+		fprintf(stdout, "recvmsg error :%s\n", strerror(errno));
+	}
+	struct cmsghdr *pmsg;
+	pmsg = CMSG_FIRSTHDR(&msg);
+#if 1
+	if (pmsg == NULL || pmsg->cmsg_len != CMSG_LEN(sizeof(int)))
+		goto failed;
+	if (pmsg->cmsg_level != SOL_SOCKET || pmsg->cmsg_type != SCM_RIGHTS)
+		goto failed;
+#endif
+	/* maybe same number file discrptor with sended fd function */
+	fprintf(stdout, "*((int *)CMSG_DATA(pmsg)) :%d\n", *((int *)CMSG_DATA(pmsg)));
+	*recv_fd = *((int *)CMSG_DATA(pmsg));
+	return n;
+failed:
+	return -1;
+}
+void sighandle(int signum)
+{
+	int saverr;
+	saverr = errno;
+	while (waitpid(-1, NULL, WNOHANG) > 0)
+		fprintf(stdout, "chlid terminal\n");
+	errno = saverr;
+	return;
+}
 int main(int argc, char *argv[])
 {
+	if (signal(SIGCHLD, sighandle) == SIG_ERR)
+		fprintf(stdout, "set sigchld error :%s\n", strerror(errno));
 	/* socketpair */
 	int inv[2];
 	if ((socketpair(AF_LOCAL, SOCK_STREAM, 0, inv)) < 0)
@@ -19,8 +74,10 @@ int main(int argc, char *argv[])
 	/* fork */
 	pid_t pid;
 	pid = fork();
-	int status;
 	char strfd[5];
+	char ptr[1024];
+	int recv_fd;
+	char buf[1024];
 	if (pid < 0)
 	{ /* fork error */
 		fprintf(stdout, "fork error :%s\n", strerror(errno));
@@ -37,16 +94,9 @@ int main(int argc, char *argv[])
 	else
 	{ /* prenet */
 		close(inv[1]);
-		waitpid(-1, &status, 0);
-		if (WIFEXITED(status) == 0)
-		{
-			fprintf(stdout, "child normal tarminal\n");
-		}
-		else
-		{
-			errno = WEXITSTATUS(status);
-			fprintf(stdout, "child exit status :%s\n", strerror(errno));
-		}
+		bzero(buf, sizeof(buf));
+		read_fd(inv[0], ptr, sizeof(ptr), &recv_fd);
+		write(recv_fd, "new", sizeof("new") - 1);
 		close(inv[0]);
 	}
 	return 0;
