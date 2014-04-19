@@ -53,8 +53,15 @@ int main(int argc, char *argv[])
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
-
-	write_fd(ifd, "", sizeof(""), fd);
+#define FAIL_STATUS	0
+#if FAIL_STATUS
+	/*
+	 * other send opration effect right send and received,
+	 * so don't received and send excapt data for file discriptor
+	 */
+	send(ifd, "111", sizeof("111"), 0);
+#endif
+	write_fd(ifd, "222", sizeof("222"), fd);
 
 	close(fd);
 	return 0;

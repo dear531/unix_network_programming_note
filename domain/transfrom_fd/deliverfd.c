@@ -77,7 +77,12 @@ int main(int argc, char *argv[])
 	char strfd[5];
 	char ptr[1024];
 	int recv_fd;
+/* see below defined macro of failed cause */
+#define FAIL_STATUS	0
+#if FAIL_STATUS
 	char buf[1024];
+	int i, n;
+#endif
 	if (pid < 0)
 	{ /* fork error */
 		fprintf(stdout, "fork error :%s\n", strerror(errno));
@@ -94,7 +99,14 @@ int main(int argc, char *argv[])
 	else
 	{ /* prenet */
 		close(inv[1]);
+#if FAIL_STATUS
+		sleep(1);
 		bzero(buf, sizeof(buf));
+		/* one read from two send data, data "111" and "222" of file descriptor */
+		n = recv(inv[0], buf, sizeof(buf), 0);
+		for (i = 0; i < n; i++)
+			fprintf(stdout, "%3d", buf[i]);
+#endif
 		read_fd(inv[0], ptr, sizeof(ptr), &recv_fd);
 		write(recv_fd, "new", sizeof("new") - 1);
 		close(inv[0]);
