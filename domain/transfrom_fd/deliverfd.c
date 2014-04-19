@@ -100,10 +100,16 @@ int main(int argc, char *argv[])
 	{ /* prenet */
 		close(inv[1]);
 #if FAIL_STATUS
-		sleep(1);
 		bzero(buf, sizeof(buf));
+		sleep(1);
 		/* one read from two send data, data "111" and "222" of file descriptor */
-		n = recv(inv[0], buf, sizeof(buf), 0);
+#if 1
+		/* recv returned when 10 bytes of received buff. */
+		n = recv(inv[0], buf, 10, MSG_WAITALL);
+#else
+		/* recve immediately return when exists data, never data how mach */
+		n = recv(inv[0], buf, 10, 0);
+#endif
 		for (i = 0; i < n; i++)
 			fprintf(stdout, "%3d", buf[i]);
 #endif

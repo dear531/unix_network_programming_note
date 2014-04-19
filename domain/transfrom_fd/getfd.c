@@ -59,7 +59,13 @@ int main(int argc, char *argv[])
 	 * other send opration effect right send and received,
 	 * so don't received and send excapt data for file discriptor
 	 */
-	send(ifd, "111", sizeof("111"), 0);
+	int i;
+	for (i = 0; i < 10; i++)
+	{
+		send(ifd, "1", sizeof("1"), 0);
+		fprintf(stdout, "send:%d\n", i);
+		sleep(1);
+	}
 #endif
 	write_fd(ifd, "222", sizeof("222"), fd);
 
