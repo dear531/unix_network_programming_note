@@ -62,6 +62,8 @@ int main(int argc, char *argv[])
 	}
 	int len = 0;
 	len = ifcp.ifc_len / sizeof(*ifrp);
+	short int *flags;
+	flags = malloc(sizeof(*flags) * len);
 	int i;
 	char ipaddr[(128 / 16) * (4 + 1)];
 	int j;
@@ -70,11 +72,11 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "name[%d]\t:%s\n", i, ifrp[i].ifr_name);
 		if (ioctl(fd, SIOCGIFFLAGS, ifrp + i))
 			continue;
+		flags[i] = ifrp[i].ifr_flags;
 		fprintf(stdout, "flags\t:%d\n", ifrp[i].ifr_flags);
 		ioctl_func(fd, SIOCGIFADDR, ifrp + i);
 		fprintf(stdout, "addr\t:%s\n", inet_ntop(AF_INET, &((struct sockaddr_in *)&(ifrp[i].ifr_addr))->sin_addr, ipaddr, sizeof(ipaddr)));
-		ioctl_func(fd, SIOCGIFFLAGS, ifrp + i);
-		if (ifrp[i].ifr_flags & IFF_BROADCAST != 0)
+		if (flags[i] & IFF_BROADCAST != 0)
 		{
 			ioctl_func(fd, SIOCGIFBRDADDR, ifrp + i);
 			fprintf(stdout, "broadaddr:%s\n", inet_ntop(AF_INET, &((struct sockaddr_in *)&(ifrp[i].ifr_broadaddr))->sin_addr, ipaddr, sizeof(ipaddr)));
