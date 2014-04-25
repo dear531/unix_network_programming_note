@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
 		};
 
 #endif
+	free(flags);
 	free(ifrp);
 	close(fd);
 
