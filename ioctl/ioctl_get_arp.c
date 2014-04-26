@@ -21,16 +21,6 @@ int socket_func(int domain, int type, int protocol)
 		exit(EXIT_FAILURE);
 	}
 }
-void *realloc_func(void *ptr, size_t size)
-{
-	void *p;
-	if ((p = realloc(ptr, size)) == NULL)
-	{
-		fprintf(stdout, "realloc failed :%s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	return p;
-}
 int ioctl_func(int fd, int request, void *argp)
 {
 	int ret;
@@ -52,11 +42,24 @@ int main(int argc, char *argv[])
 	struct arpreq	arpp;
 	char ip[(128 / 16) * (4 + 1)];
 	/* arp commond resolu query link ip :192.168.1.2 */
+#if 0
 	inet_pton(AF_INET, "192.168.1.2", &((struct sockaddr_in*)&arpp.arp_pa)->sin_addr);
+#else
+	if (argc != 3)
+	{
+		fprintf(stdout, "usage : ./a.out <ipaddr> <netdevice>\n");
+		exit(EXIT_FAILURE);
+	}
+	inet_pton(AF_INET, argv[1], &((struct sockaddr_in*)&arpp.arp_pa)->sin_addr);
+#endif
 	bzero(arpp.arp_dev, sizeof(arpp.arp_dev));
 	arpp.arp_pa.sa_family = AF_INET;
 	/* ip :192.168.1.2 corresponding netdevice name */
+#if 0
 	bcopy("eth0", arpp.arp_dev, strlen("eth0"));
+#else
+	bcopy(argv[2], arpp.arp_dev, strlen(argv[2]));
+#endif
 	ioctl_func(fd, SIOCGARP, &arpp);
 	int i;	
 	for (i = 0; i < 6; i++)
@@ -69,6 +72,7 @@ int main(int argc, char *argv[])
 		else
 			fprintf(stdout, ":");
 	}
+	/* free */
 
 	/* close socket*/
 	close(fd);
