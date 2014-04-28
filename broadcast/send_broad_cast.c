@@ -6,6 +6,9 @@
 #include <netinet/ip.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
 ssize_t sendto_func(int sockfd, const void *buf, size_t len, int flags,
 	      const struct sockaddr *dest_addr, socklen_t addrlen)
 {
@@ -54,6 +57,7 @@ int setsockopt_func(int sockfd, int level, int optname,
 	}
 	return ret;
 }
+
 int main(int argc, char *argv[])
 {
 	int fd;
@@ -63,8 +67,21 @@ int main(int argc, char *argv[])
 	struct sockaddr_in broadaddr;	
 	broadaddr.sin_family	= AF_INET;
 	broadaddr.sin_port	= htons(8000);
-	inet_pton_func(AF_INET, "192.168.1.255", &broadaddr.sin_addr);
-	sendto_func(fd, "hello", strlen("hello"), 0, (struct sockaddr*)&broadaddr, sizeof(broadaddr));
+	inet_pton_func(AF_INET, argv[1], &broadaddr.sin_addr);
+	char buf[1024];
+	int n;
+	for ( ; ; )
+	{
+		sendto_func(fd, "hello\n", strlen("hello\n"), 0, (struct sockaddr*)&broadaddr, sizeof(broadaddr));
+#if 0
+		bzero(buf, sizeof(buf));
+		n = recv(fd, buf, sizeof(buf), 0);
+		write(STDOUT_FILENO, buf, n);
+#else
+		sleep(1);
+		fprintf(stdout, "sendto %s hello\n", argv[1]);
+#endif
+	}
 
 	return 0;
 }
