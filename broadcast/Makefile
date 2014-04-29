@@ -8,7 +8,7 @@ recv:recv_broad_cast.o
 	$(CC) $^ -o $@
 
 clean:
-	-rm -rf *.o *~
+	-rm -rf *.o *~ a.out
 cleanall:clean
 	-rm -rf $(targer)
 send_broad_cast.o:send_broad_cast.c

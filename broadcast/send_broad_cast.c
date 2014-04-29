@@ -8,9 +8,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <strings.h>
 
 ssize_t sendto_func(int sockfd, const void *buf, size_t len, int flags,
-	      const struct sockaddr *dest_addr, socklen_t addrlen)
+		const struct sockaddr *dest_addr, socklen_t addrlen)
 {
 	int n;
 	if ((n = sendto(sockfd, buf, len, flags, dest_addr, addrlen)) < 0)
@@ -47,7 +50,7 @@ int inet_pton_func(int af, const char *src, void *dst)
 	return ret;
 }
 int setsockopt_func(int sockfd, int level, int optname,
-	      const void *optval, socklen_t optlen)
+		const void *optval, socklen_t optlen)
 {
 	int ret;
 	if ((ret = setsockopt(sockfd, level, optname, optval, optlen)) < 0)
@@ -58,6 +61,25 @@ int setsockopt_func(int sockfd, int level, int optname,
 	return ret;
 }
 
+int check(int argc)
+{
+	if (argc != 2)
+	{
+		fprintf(stdout, "usage : ./a.out  <IpAddress|InterfaceName>\n");
+		exit(EXIT_FAILURE);
+	}
+	return 0;
+}
+int ioctl_func(int fd, int request, void *opt)
+{
+	int ret;
+	if ((ret = ioctl(fd, request, opt)) < 0)
+	{
+		fprintf(stdout, "ioctl failed :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return ret;
+}
 int main(int argc, char *argv[])
 {
 	int fd;
@@ -65,11 +87,22 @@ int main(int argc, char *argv[])
 	int opt = 1;
 	setsockopt_func(fd, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt));
 	struct sockaddr_in broadaddr;	
+	check(argc);
+#if 0
+	inet_pton_func(AF_INET, argv[1], &broadaddr.sin_addr);
+#else
+	struct ifreq gtbrd;
+	bzero(&gtbrd, sizeof(gtbrd));
+	bcopy(argv[1], gtbrd.ifr_name, strlen(argv[1]));
+	ioctl_func(fd, SIOCGIFBRDADDR, &gtbrd);
+	bcopy(&((struct sockaddr_in *)&gtbrd.ifr_broadaddr)->sin_addr, &broadaddr.sin_addr, sizeof(struct sockaddr_in));
+#endif
 	broadaddr.sin_family	= AF_INET;
 	broadaddr.sin_port	= htons(8000);
-	inet_pton_func(AF_INET, argv[1], &broadaddr.sin_addr);
+#if 0
 	char buf[1024];
 	int n;
+#endif
 	for ( ; ; )
 	{
 		sendto_func(fd, "hello\n", strlen("hello\n"), 0, (struct sockaddr*)&broadaddr, sizeof(broadaddr));
