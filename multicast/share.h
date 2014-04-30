@@ -58,6 +58,12 @@ ssize_t recvfrom_func(int sockfd, void *buf, size_t len, int flags,
 }
 
 #define MULTI_CAST_PORT	8000
-#define MULIT_CAST_IP	"224.0.0.8"
-
+#define LOCAL_AREA_NETWORK	1
+#if LOCAL_AREA_NETWORK
+/* local area network all host link ip address */
+#define MULIT_CAST_IP	"224.0.0.1"
+#else
+/* local host loop */
+#define MULIT_CAST_IP	"224.255.0.8"
+#endif
 #endif

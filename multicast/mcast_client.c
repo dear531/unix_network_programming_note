@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	saddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	bind_func(fd, (struct sockaddr *)&saddr, sizeof(saddr));
 	int opt = 25;
-#if 0
+#if 1
 	/* set time to leavel */
 	fprintf(stdout, "set ttl\n");
 	setsockopt_func(fd, IPPROTO_IP, IP_MULTICAST_TTL, &opt, sizeof(opt));
@@ -48,10 +48,12 @@ int main(int argc, char *argv[])
 	{
 		buf[0] = '0';
 		len = sizeof(saddr);
+		bzero(buf, sizeof(buf));
 		recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&saddr, &len);
+		fprintf(stdout, "recv buf :%s\n", buf);
 		sleep(1);
-		sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&saddr, sizeof(saddr));
-		fprintf(stdout, "sendto %s\n", buf);
+		//sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&saddr, sizeof(saddr));
+		//fprintf(stdout, "sendto %s\n", buf);
 	}
 	fprintf(stdout, "leavel the group\n");
 	/* leavel multicast group */
