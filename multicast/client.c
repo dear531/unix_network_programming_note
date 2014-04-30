@@ -4,6 +4,7 @@
 #include <netinet/ip.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 /*
  *broadcast_client.c - 多播的客户端
  */
@@ -54,7 +55,7 @@ int main(int argc, char*argv[])
 		return -4;
 	}
 	int times = 0;
-	int addr_len = 0;
+	socklen_t addr_len = 0;
 	char buff[BUFF_SIZE];
 	int n = 0;
 	/*循环接收广播组的消息，5次后退出*/
@@ -63,8 +64,7 @@ int main(int argc, char*argv[])
 		addr_len = sizeof(local_addr);
 		memset(buff, 0, BUFF_SIZE);                 /*清空接收缓冲区*/
 		/*接收数据*/
-		n = recvfrom(s, buff, BUFF_SIZE, 0,(struct sockaddr*)&local_addr, 
-				&addr_len);
+		n = recvfrom(s, buff, BUFF_SIZE, 0,(struct sockaddr*)&local_addr, &addr_len);
 		if( n== -1)
 		{
 			perror("recvfrom()");
@@ -73,4 +73,5 @@ int main(int argc, char*argv[])
 		printf("Recv %dst message from server:%s\n", times, buff);
 		sleep(MCAST_INTERVAL);
 	}
+	return 0;
 }
