@@ -36,9 +36,19 @@ int main(int argc, char *argv[])
 	setsockopt_func(fd, IPPROTO_IP, IP_MULTICAST_LOOP, &opt, sizeof(opt));
 	/* add multicast group */
 	fprintf(stdout, "set add group\n");
+#define STRUCT_IP_MREQN_FLAG	1
+#if STRUCT_IP_MREQN_FLAG
+	struct ip_mreqn maddr;
+#else
 	struct ip_mreq maddr;
+#endif
 	inet_pton_func(AF_INET, MULIT_CAST_IP, &maddr.imr_multiaddr);
+#if STRUCT_IP_MREQN_FLAG
+	/* use sudo tcpdump -D see, exmaple: 1:eth0 ... , or man 7 netdevice use ioctl get interfece infomation to set*/
+	maddr.imr_ifindex = 1;
+#else
 	maddr.imr_interface.s_addr = htonl(INADDR_ANY);
+#endif
 	setsockopt_func(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &maddr, sizeof(maddr));
 	/* received and send data */
 	char buf[1024];
