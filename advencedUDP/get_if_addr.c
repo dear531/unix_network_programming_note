@@ -7,11 +7,6 @@ int main(int argc, char *argv[])
 	/* create socket udp */	
 	int fd;
 	fd = socket_func(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	/* tells socket get IP_PKTINFO */
-#ifdef IP_PKTINFO
-	int opt = 1;
-	setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));
-#endif
 	//setsockopt();
 	/* bind host */
 	struct sockaddr_in local;
@@ -19,6 +14,11 @@ int main(int argc, char *argv[])
 	local.sin_port	= htons(8000);
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	bind_func(fd, (struct sockaddr *)&local, sizeof(local));
+	/* tells socket get IP_PKTINFO */
+#ifdef IP_PKTINFO
+	int opt = 1;
+	setsockopt(fd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));
+#endif
 	/* create auxiliary data */
 	struct iovec	iov[1];
 	char buf[1024];
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 			&& pcmsg->cmsg_type == IP_PKTINFO)
 		{
 			bzero(ip, sizeof(ip));
-			ppk = CMSG_DATA(pcmsg);
+			ppk = (struct in_pktinfo *)CMSG_DATA(pcmsg);
 			fprintf(stdout, "1\n");
 			fprintf(stdout, "interface\t:%u\ndestip\t:%s\n",
 					ppk->ipi_ifindex,
