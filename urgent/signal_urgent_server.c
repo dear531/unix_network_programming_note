@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "share.h"
-int lisfd = -1, confd = -1;
+int confd = -1;
 void sig_urg(int signum)
 {
 	int save_err;
@@ -13,8 +13,9 @@ void sig_urg(int signum)
 	errno = save_err;
 	return;
 }
-int main(void)
+int create_lisfd(void)
 {
+	int lisfd = -1;
 	/* socket */
 	lisfd = socket_func(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	/* bind */
@@ -25,6 +26,12 @@ int main(void)
 	bind_func(lisfd, (struct sockaddr *)&saddr, sizeof(saddr));
 	/* listen */
 	listen(lisfd, 10);
+	return lisfd;
+}
+int main(void)
+{
+	int lisfd = -1;
+	lisfd = create_lisfd();
 	/* accept */
 	confd = accept_func(lisfd, NULL, NULL);
 	signal_func(SIGURG, sig_urg);
@@ -44,7 +51,6 @@ int main(void)
 			break;
 		}
 		fprintf(stdout, "buf :%s\n", buf);
-		sleep(2);
 	}
 	/* close connect */
 	if (confd != -1)
