@@ -23,6 +23,9 @@ int create_lisfd(void)
 	saddr.sin_family	= AF_INET;
 	saddr.sin_port		= htons(8000);
 	inet_pton_func(AF_INET, "127.0.0.1", &saddr.sin_addr);
+	/* set socket address reuse */
+	int en = 1;
+	setsockopt_func(lisfd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en));
 	bind_func(lisfd, (struct sockaddr *)&saddr, sizeof(saddr));
 	/* listen */
 	listen(lisfd, 10);

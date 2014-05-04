@@ -110,6 +110,8 @@ ssize_t recv_func(int sockfd, void *buf, size_t len, int flags)
 	if ((n = recv(sockfd, buf, len, flags)) < 0)
 	{
 		fprintf(stdout, "recv error :%s\n", strerror(errno));
+		if (errno == EAGAIN)
+			fprintf(stdout, "errno again :%d\n", errno);
 		exit(EXIT_FAILURE);
 	}
 	return n;
