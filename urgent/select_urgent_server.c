@@ -15,28 +15,6 @@ int create_lisfd(void)
 	listen(lisfd, 10);
 	return lisfd;
 }
-int select_func(int nfds, fd_set *readfds, fd_set *writefds,
-		fd_set *exceptfds, struct timeval *timeout)
-{
-	int ret;
-	if ((ret = select(nfds, readfds, writefds, exceptfds, timeout)) < 0)
-	{
-		fprintf(stdout, "select error :%s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	return ret;
-}
-int accept4_func(int sockfd, struct sockaddr *addr,
-	  socklen_t *addrlen, int flags)
-{
-	int confd;
-	if ((confd = accept4(sockfd, addr, addrlen, flags)) < 0)
-	{
-		fprintf(stdout, "accept4 error :%s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	return confd;
-}
 
 int main(void)
 {
