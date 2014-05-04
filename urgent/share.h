@@ -148,4 +148,15 @@ int accept4_func(int sockfd, struct sockaddr *addr,
 	}
 	return confd;
 }
+int setsockopt_func(int sockfd, int level, int optname,
+	      const void *optval, socklen_t optlen)
+{
+	int ret;
+	if ((ret = setsockopt(sockfd, level, optname, optval, optlen)) < 0)
+	{
+		fprintf(stdout, "setsockopt error :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return ret;
+}
 #endif

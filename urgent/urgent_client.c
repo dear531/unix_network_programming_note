@@ -16,9 +16,11 @@ int main(void)
 	send_func(fd, "1", sizeof("1") - 1, 0);
 	/* send urgent */
 	send_func(fd, "u", sizeof("u") - 1, MSG_OOB);
-	sleep(1);
+	//sleep(1);
 	/* send urgent urgent multi bytes */
 	send_func(fd, "abc", sizeof("abc") - 1, MSG_OOB);
+	/* apeend normal data */
+	send_func(fd, "def", sizeof("def") - 1, 0);
 	/* close */
 	close(fd);
 	return (0);
