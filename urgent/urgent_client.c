@@ -12,10 +12,8 @@ int main(void)
 	saddr.sin_port		= htons(8000);
 	inet_pton_func(AF_INET, "127.0.0.1", &saddr.sin_addr);
 	connect_func(fd, (struct sockaddr *)&saddr, sizeof(saddr));
-	sleep(1);
 	/* send data */
 	send_func(fd, "1", sizeof("1") - 1, 0);
-	sleep(1);
 	/* send urgent */
 	send_func(fd, "u", sizeof("u") - 1, MSG_OOB);
 	sleep(1);

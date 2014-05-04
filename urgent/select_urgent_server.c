@@ -26,12 +26,27 @@ int select_func(int nfds, fd_set *readfds, fd_set *writefds,
 	}
 	return ret;
 }
+int accept4_func(int sockfd, struct sockaddr *addr,
+	  socklen_t *addrlen, int flags)
+{
+	int confd;
+	if ((confd = accept4(sockfd, addr, addrlen, flags)) < 0)
+	{
+		fprintf(stdout, "accept4 error :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return confd;
+}
 
 int main(void)
 {
 	int lisfd, confd;
 	lisfd = create_lisfd();
+#if 1
 	confd = accept_func(lisfd, NULL, NULL);
+#else
+	confd = accept4_func(lisfd, NULL, NULL, SOCK_NONBLOCK);
+#endif
 	fd_set rset, xset;
 	char buf[1024];
 	int justreadoob;
