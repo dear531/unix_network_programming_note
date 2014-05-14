@@ -22,7 +22,7 @@ int create_listen()
 
 void *pfunc(void *arg)
 {
-	//pthread_detach(pthread_self());
+	pthread_detach(pthread_self());
 	char buf[1024];
 	int n;
 	for ( ; ; )
@@ -31,7 +31,7 @@ void *pfunc(void *arg)
 		if ((n = recv((int)arg, buf, sizeof(buf), 0)) == 0)
 		{
 			close((int)arg);
-			exit(EXIT_SUCCESS);
+			return (NULL);
 		}
 		send((int)arg, buf, n, 0);
 	}
