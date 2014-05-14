@@ -161,4 +161,14 @@ int setsockopt_func(int sockfd, int level, int optname,
 	}
 	return ret;
 }
+int listen_func(int sockfd, int backlog)
+{
+	int ret;
+	if ((ret = listen(sockfd, backlog)) < 0)
+	{
+		fprintf(stdout, "listen error :%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return ret;
+}
 #endif
