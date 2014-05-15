@@ -23,7 +23,9 @@ int create_listen()
 
 void *pfunc(void *arg)
 {
-	pthread_detach(pthread_self());
+	int ret;
+	if ((ret = pthread_detach(pthread_self())) > 0)
+		fprintf(stdout, "pthread error :%s\n", strerror(ret));
 	char buf[1024];
 	int n;
 	for ( ; ; )
@@ -45,6 +47,7 @@ int main(int argc, char *argv[])
 	int lifd, cofd;
 	/* combine :socket and bind adn listen */
 	lifd = create_listen();
+	int ret;
 	for ( ; ; )
 	{
 		/* accept */
@@ -52,7 +55,12 @@ int main(int argc, char *argv[])
 		write(STDOUT_FILENO, ".", sizeof("."));
 		pthread_t pt;
 		/* create new pthead */
-		pthread_create(&pt, NULL, pfunc, (void *)cofd);
+#if 0		/* test return value of pthread function */
+		char test;
+		if ((ret = pthread_create(&pt, (const pthread_attr_t *)&test, pfunc, (void *)cofd)) > 0)
+#endif
+		if ((ret = pthread_create(&pt, NULL, pfunc, (void *)cofd)) > 0)
+			fprintf(stdout, "pthread_create error :%s\n", strerror(ret));
 	}
 	return 0;
 }
