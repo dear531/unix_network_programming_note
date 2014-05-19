@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 	int	n;
 	char	buf[1024];
 	signal_func(SIGCHLD, SIG_IGN);
+	char c;
 	for (i = 0; i < FD_MAX; i++)
 	{
 		/* fork proccess */
@@ -32,7 +33,8 @@ int main(int argc, char *argv[])
 			connect_func(fd[i], (struct sockaddr *)&saddr, sizeof(saddr));
 			for ( ; ; )
 			{
-				n = send_func(fd[i], "1", sizeof("1") - 1, 0);
+				c	= '0' + i;
+				n	= send_func(fd[i], &c, sizeof(c), 0);
 				recv_func(fd[i], buf, sizeof(buf), 0);
 			}
 			close(fd[i]);

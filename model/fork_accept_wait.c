@@ -44,14 +44,16 @@ void pr_cpu_time(void)
 
 #endif
 	long	utime, stime;
-	utime	= (parent.ru_utime.tv_sec + child.ru_utime.tv_sec) * (1000 * 1000);
+	utime	= (parent.ru_utime.tv_sec + child.ru_utime.tv_sec) * (1000 * 1000)
+		+ (parent.ru_utime.tv_usec + child.ru_utime.tv_usec);
 	fprintf(stdout, "user time :%ld\n", utime);
-	stime	= (parent.ru_stime.tv_usec + child.ru_stime.tv_usec);
+	stime	= (parent.ru_stime.tv_sec + child.ru_stime.tv_sec) * (1000 * 1000)
+		+ (parent.ru_utime.tv_usec + child.ru_utime.tv_usec);
 	fprintf(stdout, "sys time :%ld\n", stime);
 	exit(EXIT_SUCCESS);
 		return;
 }
-#define FD_MAX	10
+#define FD_MAX	1000
 pid_t	pid[FD_MAX];
 void sig_int(int signum)
 {
@@ -76,6 +78,7 @@ int main(int argc, char argv[])
 	int	n;
 	signal_func(SIGCHLD, SIG_IGN);
 	signal_func(SIGPIPE, sig_pipe);
+	fd_set rset;
 	for (i = 0; i < FD_MAX; i++)
 	{
 		if ((pid[i] = fork()) < 0)
@@ -85,6 +88,11 @@ int main(int argc, char argv[])
 		}
 		else if (pid[i] == 0)
 		{
+			FD_ZERO(&rset);
+			FD_SET(lifd, &rset);
+			fprintf(stdout, "i :%d\n", i);
+			select_func(lifd + 1, &rset, NULL, NULL, NULL);
+			fprintf(stdout, "return i :%d\n", i);
 			cofd	= accept(lifd, NULL, NULL);
 			for ( ; ; )
 			{
@@ -94,6 +102,7 @@ int main(int argc, char argv[])
 					fprintf(stdout, "peer close\n");
 					exit(EXIT_SUCCESS);
 				}
+				write(STDOUT_FILENO, buf, sizeof(buf));
 				send_func(cofd, buf, n, 0);
 			}
 			exit(EXIT_SUCCESS);
