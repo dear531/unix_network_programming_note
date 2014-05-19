@@ -30,7 +30,11 @@ int main(int argc, char *argv[])
 			saddr.sin_port		= htons(8000);
 			inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
 			connect_func(fd[i], (struct sockaddr *)&saddr, sizeof(saddr));
-			n = send(fd[i], "1", sizeof("1") - 1, 0);
+			for ( ; ; )
+			{
+				n = send_func(fd[i], "1", sizeof("1") - 1, 0);
+				recv_func(fd[i], buf, sizeof(buf), 0);
+			}
 			close(fd[i]);
 			fd[i] = -1;
 			exit(EXIT_SUCCESS);
