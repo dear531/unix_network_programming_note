@@ -8,6 +8,7 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 
 
@@ -77,6 +78,15 @@ int setsockopt_func(int sockfd, int level, int optname,
 	}
 	return ret;
 }
+int select_func(int nfds, fd_set *readfds, fd_set *writefds,
+		  fd_set *exceptfds, struct timeval *timeout)
+{
+	int ret;
+	if ((ret = select(nfds, readfds, writefds, exceptfds, timeout)) < 0) {
+		fprintf(stdout, "select error :%s\n", strerror(errno));
+	}
+	return ret;
+}
 
 int main(int argc, char *argv[])
 {
@@ -97,13 +107,14 @@ int main(int argc, char *argv[])
 	listen_func(lifd, 10);
 	/* fork */
 	pid_t pid;
-	int cofd;
 	int i;
 	for (i = 0; i < 10; i++) {
 		if ((pid = fork()) < 0) {
 			/* error */
 		} else if (pid == 0) {
 			/* child */
+#if 0
+			int cofd;
 			int n;
 			char buf[10];
 			cofd = accept(lifd, NULL, NULL);
@@ -113,7 +124,16 @@ int main(int argc, char *argv[])
 						i, buf);
 			}
 			close_func(cofd);
-			close_func(lifd);
+#else
+			int n;
+			fd_set rset;
+			FD_ZERO(&rset);
+			FD_SET(lifd, &rset);
+			n = select_func(lifd + 1, &rset, NULL, NULL, NULL);
+			fprintf(stdout, "proccess %d be %d fd readable\n", i, n);
+#endif
+			//close_func(lifd);
+			pause();
 			exit(EXIT_SUCCESS);
 		} else {
 			/* perent */
