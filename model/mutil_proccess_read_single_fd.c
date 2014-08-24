@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
 			sleep(2);
 		}
 	}
-	pause();
 	close_func(confd);
 	close_func(fd);
+	pause();
 
 	return 0;
 }
