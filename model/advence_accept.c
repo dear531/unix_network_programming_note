@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 
 
@@ -87,7 +88,34 @@ int select_func(int nfds, fd_set *readfds, fd_set *writefds,
 	}
 	return ret;
 }
+void init_write_lock(struct flock *write_lock)
+{
+	memset(write_lock, 0x00, sizeof(*write_lock));
+	write_lock->l_type	= F_WRLCK;
+	write_lock->l_whence	= SEEK_SET;
+	write_lock->l_start	= 0;
+	write_lock->l_len	= 0;
+	return;
+}
+void init_unlock(struct flock *unlock)
+{
+	memset(unlock, 0x00, sizeof(*unlock));
+	unlock->l_type      = F_UNLCK;
+	unlock->l_whence    = SEEK_SET;
+	unlock->l_start     = 0;
+	unlock->l_len       = 0;
 
+	return;
+}
+int mkstemp_func(char *template)
+{
+	int fd;
+	if (0 > (fd = mkstemp(template))) {
+		fprintf(stdout, "mkstemp error :%s\n",
+				strerror(errno));
+	}
+	return fd;
+}
 int main(int argc, char *argv[])
 {
 	/* socket */
@@ -105,6 +133,16 @@ int main(int argc, char *argv[])
 	bind_func(lifd, (struct sockaddr *)&addr4, sizeof(addr4));
 	/* listen */
 	listen_func(lifd, 10);
+	/* init lock */
+	struct flock write_lock;
+	init_write_lock(&write_lock);
+	struct flock unlock;
+	init_unlock(&unlock);
+	/* create lock fd */
+	int fd;
+	char tmpfile[] = "tmp.XXXXXX";
+	fd = mkstemp_func(tmpfile);
+	unlink(tmpfile);
 	/* fork */
 	pid_t pid;
 	int i;
@@ -125,6 +163,7 @@ int main(int argc, char *argv[])
 			}
 			close_func(cofd);
 #else
+			fcntl(fd, F_SETLKW, &write_lock);
 			int n;
 			fd_set rset;
 			FD_ZERO(&rset);
@@ -150,7 +189,8 @@ int main(int argc, char *argv[])
 							buf);
 				}
 			}
-			//close_func(lifd);
+			fcntl(fd, F_SETLK, &unlock);
+			close_func(lifd);
 			pause();
 			exit(EXIT_SUCCESS);
 		} else {
