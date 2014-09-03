@@ -132,6 +132,24 @@ int main(int argc, char *argv[])
 			n = select_func(lifd + 1, &rset, NULL, NULL, NULL);
 			fprintf(stdout, "proccess %d be %d fd readable\n", i, n);
 #endif
+			int cofd;
+			char buf[256];
+			if (n > 0) {
+				cofd = accept_func(lifd, NULL, NULL);
+				fprintf(stdout, "cofd proccess pid :%d\n",
+						getpid());
+				if (0 > (memset(buf, 0x00, sizeof(buf)),
+					n = recv(cofd, buf, sizeof(buf), 0))
+						&& errno == EAGAIN) {
+					fprintf(stdout, "nosomething\n");
+				} else if (0 > n) {
+					fprintf(stdout, "recv error :%s\n",
+							strerror(errno));
+				} else {
+					fprintf(stdout, "buf:%s\n",
+							buf);
+				}
+			}
 			//close_func(lifd);
 			pause();
 			exit(EXIT_SUCCESS);
