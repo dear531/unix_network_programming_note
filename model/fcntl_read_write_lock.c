@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
 				} else {
 					fprintf(stdout, "read get lock\n");
 				}
-				sleep(1);
 				/* unlokc */
 				fcntl(fd, F_SETLK, &unlock);
+				sleep(1);
 			}
 			exit(EXIT_SUCCESS);
 		} else {
@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
 		} else {
 			fprintf(stdout, "perent get lock\n");
 		}
-		sleep(1);
 		/* unlokc */
 		fcntl(fd, F_SETLK, &unlock);
+		sleep(1);
 	}
 
 	return 0;
