@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 	char buff[1024] = {0};
 	int n, i;
 	pid_t pid;
+	int len;
 	for (i = 0; 5 > i; i++){
 		pid = fork();
 		if (0 > pid) {
@@ -29,7 +30,16 @@ int main(int argc, char *argv[])
 		} else {
 			/* child */
 			for ( ; ; ) {
-				n = read(fd, buff, sizeof(buff));
+				n = read(fd, &len, sizeof(len));
+				if (0 > n) {
+					/* read error */
+				} else if (0 == n) {
+					/* peer close */
+				} else {
+					fprintf(stdout, "buff:%d, pid:%d\n",
+							len, getpid());
+				}
+				n = read(fd, buff, len + 1 > sizeof(buff) ? sizeof(buff) : len + 1);
 				if (0 > n) {
 					/* read error */
 				} else if (0 == n) {

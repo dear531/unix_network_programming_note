@@ -34,10 +34,28 @@ again:
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+#if 0
 	char buff[sizeof("this is server") + 1] = "this is server";
+#else
+	char buff[1024] = {0};
+	struct {
+		int len;
+		char *content;
+	} data;
+	data.content = "this struct pass server";
+	data.len = strlen(data.content);
+#endif
 	int n, i;
 	for (i = 0; ;i++) {
+#if 0
 		n = write(fd, buff, sizeof(buff));
+#else
+		memset(buff, 0x00, sizeof(buff));
+		memcpy(buff, &data.len, sizeof(data.len));
+		memcpy(buff + sizeof(data.len), data.content, strlen(data.content));
+		n = write(fd, buff, sizeof(data.len) + strlen(data.content) + 1);
+#endif
+		fprintf(stdout, "n:%d\n", n);
 		if (0 > n) {
 			/* write error */
 			if (EPIPE != errno) {
@@ -51,8 +69,11 @@ again:
 			/* write success */
 			fprintf(stdout, "buff:%s\n",
 					buff);
-			sleep(1);
+#if 0
 			buff[sizeof("this is server") - 1] = '0' + i;
+#else
+#endif
+			sleep(1);
 		}
 	}
 	if (-1 != fd) {
