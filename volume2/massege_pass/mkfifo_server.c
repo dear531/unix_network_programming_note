@@ -26,9 +26,27 @@ again:
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	char buff[] = "this is server";
-	write(fd, buff, sizeof(buff));
-	close(fd);
+	char buff[sizeof("this is server") + 1] = "this is server";
+	int n, i;
+	for (i = 0; ;i++) {
+		buff[sizeof("this is server") - 1] = '0' + i;
+		n = write(fd, buff, sizeof(buff));
+		if (0 > n) {
+			/* write error */
+			exit(EXIT_SUCCESS);
+		} else if (0 == n) {
+			/* can not write */
+		} else {
+			/* write success */
+			fprintf(stdout, "buff:%s\n",
+					buff);
+			sleep(1);
+		}
+	}
+	if (-1 != fd) {
+		close(fd);
+		fd = -1;
+	}
 	unlink(PIPEFILE);
 	return 0;
 }
