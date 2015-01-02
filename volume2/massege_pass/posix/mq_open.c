@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
                      struct mq_attr *attr);
 #endif
 	mqd_t mqt;
-	mqt	= mq_open("/temp.1234", O_RDWR, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP, NULL);
+	mqt	= mq_open("/temp.1234", O_RDWR | O_CREAT, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP, NULL);
 	if (0 > mqt) {
 		fprintf(stderr, "mq_open error :%s\n",
 				strerror(errno));
