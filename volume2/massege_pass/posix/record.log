@@ -1,0 +1,12 @@
+create massage queue file:
+mq_open() see resource file mq_open.c
+
+see created massage queue file command:
+# mkdir /dev/mqueue/
+# mount -t mqueue none /dev/mqueue/
+(umount :umount -t mqueue  /dev/mqueue)
+# cat /dev/mqueue/temp.1234 
+	QSIZE:0          NOTIFY:0     SIGNO:0     NOTIFY_PID:0     
+mq_unlink see resource file mq_unlink.c:
+run mq_unlink after try again mount path nothing:
+cat /dev/mqueue/
