@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 			NULL);
 	if (0 > mqt && EEXIST == errno) {
 		fprintf(stderr, "%s conitnue\n", strerror(errno));
-	} else {
+	} else if (0 > mqt) {
 		fprintf(stderr, "mq_open :%s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
