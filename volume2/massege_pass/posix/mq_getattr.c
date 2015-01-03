@@ -40,6 +40,13 @@ again:
 #endif
 	fprintf(stdout, "flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
 			mqattr.mq_flags, mqattr.mq_maxmsg, mqattr.mq_msgsize, mqattr.mq_curmsgs);
+	struct mq_attr newattr;
+	newattr.mq_flags = O_NONBLOCK;
+	mq_setattr(mqd, &newattr, NULL);
+	mq_getattr(mqd, &mqattr);
+	fprintf(stdout, "set new attribut flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
+			mqattr.mq_flags, mqattr.mq_maxmsg, mqattr.mq_msgsize, mqattr.mq_curmsgs);
+	fprintf(stdout, "O_NONBLOCK:%d\n", O_NONBLOCK);
 	mq_close(mqd);
 	return 0;
 }
