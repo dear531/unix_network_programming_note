@@ -12,11 +12,18 @@
 int main(int argc, char *argv[])
 {
 	mqd_t mqd;
+	struct mq_attr mqattr;
+             mqattr.mq_flags = O_NONBLOCK;
+             mqattr.mq_maxmsg = 10 * 2;
+             mqattr.mq_msgsize = 8192 * 2;
+             mqattr.mq_curmsgs = 2;
+	fprintf(stdout, "flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
+			mqattr.mq_flags, mqattr.mq_maxmsg, mqattr.mq_msgsize, mqattr.mq_curmsgs);
 again:
 	mqd = mq_open(MASSAGE_QUEUE_NAME,
 			O_RDWR | O_CREAT | O_EXCL,
 			S_IRWXU,
-			NULL);
+			&mqattr);
 	if (0 > mqd && EEXIST == errno) {
 		mq_unlink(MASSAGE_QUEUE_NAME);
 		fprintf(stdout, "unlink exits :%s massage queue, retry create\n", MASSAGE_QUEUE_NAME);
@@ -26,9 +33,6 @@ again:
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	struct mq_attr mqattr;
-	fprintf(stdout, "flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
-			mqattr.mq_flags, mqattr.mq_maxmsg, mqattr.mq_msgsize, mqattr.mq_curmsgs);
 	mq_getattr(mqd, &mqattr);
 #if 0
          struct mq_attr {
@@ -41,7 +45,7 @@ again:
 	fprintf(stdout, "flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
 			mqattr.mq_flags, mqattr.mq_maxmsg, mqattr.mq_msgsize, mqattr.mq_curmsgs);
 	struct mq_attr newattr;
-	newattr.mq_flags = O_NONBLOCK;
+	newattr.mq_flags = 0;
 	mq_setattr(mqd, &newattr, NULL);
 	mq_getattr(mqd, &mqattr);
 	fprintf(stdout, "set new attribut flags:%ld,maxmsg:%ld,msgsize:%ld,curmsgs:%ld\n",
