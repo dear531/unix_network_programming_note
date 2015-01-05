@@ -21,7 +21,7 @@ int main(void)
 {
 	/* mq_open */
 	mqd_t mqd;
-	mqd = mq_open(MESSAGE_QUEUE_FILE, O_RDWR);
+	mqd = mq_open(MESSAGE_QUEUE_FILE, O_RDWR | O_NONBLOCK);
 	if (0 > mqd) {
 		fprintf(stderr, "mq_open error :%s\n",
 				strerror(errno));
@@ -55,10 +55,21 @@ int main(void)
 				memset(buff, 0x00, attr.mq_msgsize);
 				read(pfd[0], buff, attr.mq_msgsize);
 				fprintf(stdout, "buff:%s\n", buff);
-				memset(buff, 0x00, attr.mq_msgsize);
-				readn = mq_receive(mqd, buff, attr.mq_msgsize, &prio);
-				fprintf(stdout, "n:%d, prio:%d\n",
-						readn, prio);
+				for ( ; ; ) {
+					memset(buff, 0x00, attr.mq_msgsize);
+					readn = mq_receive(mqd, buff, attr.mq_msgsize, &prio);
+					if (0 > readn && EAGAIN != errno) {
+						fprintf(stderr, "mq_receive error :%s\n",
+								strerror(errno));
+						exit(EXIT_FAILURE);
+					} else if (0 > readn) {
+						fprintf(stdout, "message queue empty\n");
+						break;
+					} else {
+						fprintf(stdout, "n:%d, prio:%d\n",
+								readn, prio);
+					}
+				}
 			}
 		} else {
 			/* error */
