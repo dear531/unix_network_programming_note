@@ -54,16 +54,35 @@ void sig_usr1(int signum)
 	}
 	return;
 }
-
+void *malloc_func(size_t size)
+{
+	void *p = NULL;
+	if (NULL == (p = malloc(size))) {
+		fprintf(stderr, "malloc error :%s\n",
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return p;
+}
+mqd_t mq_notify_func(mqd_t mqdes, const struct sigevent *notification)
+{
+	mqd_t mqd;
+	if (0 > (mqd = mq_notify(mqdes, notification))) {
+		fprintf(stderr, "mq_notify error :%s\n",
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	return mqd;
+}
 int main(int argc, char *argv[])
 {
 	mqd = mq_open_func(MESSAGE_QUEUE_FILE, O_RDWR);
 	signal(SIGUSR1, sig_usr1);
 	sigev.sigev_notify = SIGEV_SIGNAL;
 	sigev.sigev_signo = SIGUSR1;
-	mq_notify(mqd, &sigev);
+	mq_notify_func(mqd, &sigev);
 	mq_getattr_func(mqd, &attr);
-	buff = malloc(attr.mq_msgsize);
+	buff = malloc_func(attr.mq_msgsize);
 	int i, prio, n;
 	for (i = 0; attr.mq_curmsgs > i; i++) {
 		n = mq_receive_func(mqd, buff, attr.mq_msgsize, &prio);
