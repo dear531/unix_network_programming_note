@@ -16,3 +16,14 @@ $ gcc mq_send.c -lrt
 $ ./a.out 20 10
 $ cat /dev/mqueue/temp.1234 
 QSIZE:72         NOTIFY:0     SIGNO:0     NOTIFY_PID:0   
+
+notification:
+gcc mq_notify.c -lrt
+./a.out
+
+# cat /dev/mqueue/temp.1234 
+QSIZE:0          NOTIFY:0     SIGNO:10    NOTIFY_PID:7970  
+may be see pid 7970 and signal number 10(SIGUSR1)
+
+make and run ./send 10 1
+./a.out output n:10, prio:1
