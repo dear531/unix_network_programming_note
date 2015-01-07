@@ -6,6 +6,9 @@ void print_siginfo_child(int signum, siginfo_t *info, void *context)
 {
 	fprintf(stdout, "signum:%d, si_code:%d, si_value:%d\n",
 			signum, info->si_code, info->si_value);
+	if (SIGRTMIN + 3 == signum) {
+		exit(EXIT_SUCCESS);
+	}
 	return;
 }
 int main(int argc, char *argv[])
@@ -29,21 +32,26 @@ int main(int argc, char *argv[])
 			}
 			sleep(2);
 		}
+		sigqueue(pid, SIGRTMIN + 3, value);
 	} else {
 		/* child */
 		/* set mask */
 		sigset_t newmask;
+		sigset_t oldmask;
 		sigemptyset(&newmask);
+		for (i = 0; 3 > i; i++) {
+			sigaddset(&newmask, SIGRTMIN + i);
+		}
 		struct sigaction act, oldact;
 		act.sa_sigaction = print_siginfo_child;
 		act.sa_flags = SA_SIGINFO;
 		act.sa_mask = newmask;
 		for (i = 0; 3 > i; i++) {
-			sigaddset(&newmask, SIGRTMIN + i);
-		}
-		for (i = 0; 3 > i; i++) {
 			sigaction(SIGRTMIN + i, &act, &oldact);
 		}
+		sigprocmask(SIG_BLOCK, &newmask, &oldmask);
+		sleep(10);
+		sigprocmask(SIG_UNBLOCK, &newmask, &oldmask);
 		for ( ; ; )
 			pause();
 		exit(EXIT_FAILURE);
