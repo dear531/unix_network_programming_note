@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	fprintf(stdout, "msgbuf.mtype:%d, msgbuf.mtext:%d\n",
+	fprintf(stdout, "msgbuf.mtype:%ld, msgbuf.mtext:%d\n",
 			msgbuf.mtype, msgbuf.mtext[0]);
 
 	return 0;
