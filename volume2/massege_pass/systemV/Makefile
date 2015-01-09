@@ -1,6 +1,6 @@
-TARGET	:msgcreate msgsnd
+TARGET	:=msgcreate msgsnd msgrmid
 default	:$(TARGET)
 clean:
-	-rm -rf *.o msgcreate msgsnd
+	-rm -rf *.o $(TARGET) a.out
 .PHONY:
-	clean test all
+	clean
