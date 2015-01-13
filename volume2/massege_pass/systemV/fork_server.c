@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 		int msgid;
 	} msgbuf_ctos_id;
 	pid_t pid;
-	fprintf(stdout, "msgid :%d\n",
+	fprintf(stdout, "create common msgid :%d\n",
 			msgid);
 	for ( ; ; ) {
 	/* pool and fork to operat new connect */
@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
 				long mtype;
 				char mtext[1];
 			} msgbuf;
+			fprintf(stdout, "communicated client msgid :%d\n",
+					msgbuf_ctos_id.msgid);
 
 			for ( ; ; ) {
 #if 0
@@ -38,8 +40,8 @@ int main(int argc, char *argv[])
 				msgrcv_func(msgbuf_ctos_id.msgid, &msgbuf, sizeof(msgbuf), FORK_C_TO_S, 0);
 				msgbuf.mtype = FORK_S_TO_C;
 				msgbuf.mtext[0]++;
-				fprintf(stdout, "server receive from client data :%c\n",
-						msgbuf.mtext[0]);
+				fprintf(stdout, "server receive from client msgid %d data :%c\n",
+						msgbuf_ctos_id.msgid, msgbuf.mtext[0]);
 				msgsnd_func(msgbuf_ctos_id.msgid, &msgbuf, sizeof(msgbuf), 0);
 			}
 			exit(EXIT_SUCCESS);

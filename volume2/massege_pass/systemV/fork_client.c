@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
 	for ( ; ; ) {
 		msgbuf.mtype = FORK_C_TO_S;
 		msgsnd_func(fork_msgid, &msgbuf, sizeof(msgbuf), 0);
-		fprintf(stdout, "send msgbuf.mtext:%c\n", msgbuf.mtext[0]);
+		fprintf(stdout, "client msgid :%d, send msgbuf.mtext:%c\n",
+				msgbuf_ctos_id.msgid, msgbuf.mtext[0]);
 		msgrcv_func(fork_msgid, &msgbuf, sizeof(msgbuf), FORK_S_TO_C, 0);
 		fprintf(stdout, "recv msgbuf.mtext:%c\n", msgbuf.mtext[0]);
 		sleep(1);
