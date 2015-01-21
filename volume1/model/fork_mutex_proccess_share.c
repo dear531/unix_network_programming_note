@@ -48,7 +48,7 @@ void my_lock_init(void)
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	ret = pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_PRIVATE);
+	ret = pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED);
 	if (0 != ret) {
 		fprintf(stderr, "pthread_mutexattr_setpshared error :%s\n",
 				strerror(errno));
