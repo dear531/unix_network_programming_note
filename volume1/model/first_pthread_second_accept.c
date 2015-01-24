@@ -20,17 +20,17 @@ void *pthread_connect(void *arg)
 		n = recv(*(int *)fd, buff, sizeof(buff), 0);
 		if (0 > n) {
 			/* recv error */
-			fprintf(stderr, "recv error :%s in %d\n", ptrdid);
+			fprintf(stderr, "recv error :%s in %d\n", strerror(errno), (int)ptrdid);
 			goto finish;
 		} else if (0 == n) {
 			/* peer close */
-			fprintf(stdout, "peer close in pthread %d\n", ptrdid);
+			fprintf(stdout, "peer close in pthread %d\n", (int)ptrdid);
 			close(*fd);
 			*fd = -1;
 			goto finish;
 		} else {
 			/* success recv */
-			fprintf(stdout, " in pthread %d buff:%s\n", ptrdid, buff);
+			fprintf(stdout, " in pthread %d buff:%s\n", (int)ptrdid, buff);
 		}
 		/* send */
 		send(*fd, buff, strlen(buff), 0);
