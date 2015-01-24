@@ -7,17 +7,20 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#define CONNECT_MAXNUM	2
+int confd[CONNECT_MAXNUM] = {0};
 /* pthread_function */
 void *pthread_connect(void *arg)
 {
 	int n;
-	int *fd = (int *)arg;
+	int i = (int)arg;
 	char buff[1024];
 	pthread_t ptrdid;
 	ptrdid = pthread_self();
+	pthread_detach(ptrdid);
 	for ( ; memset(buff, 0x00, sizeof(buff)); ) {
 		/* recv */
-		n = recv(*(int *)fd, buff, sizeof(buff), 0);
+		n = recv(confd[i], buff, sizeof(buff), 0);
 		if (0 > n) {
 			/* recv error */
 			fprintf(stderr, "recv error :%s in %d\n", strerror(errno), (int)ptrdid);
@@ -25,15 +28,15 @@ void *pthread_connect(void *arg)
 		} else if (0 == n) {
 			/* peer close */
 			fprintf(stdout, "peer close in pthread %d\n", (int)ptrdid);
-			close(*fd);
-			*fd = -1;
+			close(confd[i]);
+			confd[i] = -1;
 			goto finish;
 		} else {
 			/* success recv */
 			fprintf(stdout, " in pthread %d buff:%s\n", (int)ptrdid, buff);
 		}
 		/* send */
-		send(*fd, buff, strlen(buff), 0);
+		send(confd[i], buff, strlen(buff), 0);
 	}
 finish:
 #if 0
@@ -98,7 +101,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	/* listen */
-#define CONNECT_MAXNUM	2
 	ret = listen(sockfd, CONNECT_MAXNUM);
 	if (0 > ret) {
 		fprintf(stderr, "listen error :%s\n",
@@ -106,7 +108,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	pthread_t ptrdid;
-	int confd[CONNECT_MAXNUM];
 	int i;
 	for (i = 0; CONNECT_MAXNUM > i; i++) {
 		confd[i] = -1;
@@ -129,7 +130,8 @@ int main(int argc, char *argv[])
 				  const pthread_attr_t *restrict attr,
 				  void *(*start_routine)(void*), void *restrict arg);
 #endif
-		pthread_create(&ptrdid, NULL, pthread_connect, (void*)&confd[i]);
+		pthread_create(&ptrdid, NULL, pthread_connect, i);
+		//pthread_detach(ptrdid);
 	}
 	for (i = 0; CONNECT_MAXNUM > i; i++) {
 		/* close connect fd */
