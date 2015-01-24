@@ -11,27 +11,29 @@
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int sockfd = -1;
+#define PTHREAD_MAXNUM	2
 
 /* pthread_func */
 void * pthread_func(void *arg)
 {
 	int confd = -1;
+	char buff[1024] = {0};
+	int n;
+	pthread_t ptrdid;
+	ptrdid = pthread_self();
+reset:
 	/* pthread_mutex_lock */
 	pthread_mutex_lock(&mutex);
 	/* accept */
 	confd = accept(sockfd, NULL, NULL);
 	/* pthread_mutex_unlock */
 	pthread_mutex_unlock(&mutex);
-	pthread_t ptrdid;
-	ptrdid = pthread_self();
 	if (0 > confd) {
 		fprintf(stderr, "accept error :%s in pthread %d\n",
 				strerror(errno), (int)ptrdid);
 		goto finish;
 	}
 	/* recv and send */
-	char buff[1024] = {0};
-	int n;
 	for ( ; memset(buff, 0x00, sizeof(buff)); ) {
 		n = recv(confd, buff, sizeof(buff), 0);
 		if (0 > n) {
@@ -54,6 +56,7 @@ finish:
 		close(confd);
 		confd = -1;
 	}
+	goto reset;
 	pthread_exit(NULL);
 	/* ptread_exit */
 }
@@ -67,6 +70,14 @@ int main(int argc, char *argv[])
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+	/* reuse address ip */
+	int opt = 1;
+	int ret;
+	ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	if (0 > ret) {
+		fprintf(stderr, "setsockopt error :%s\n",
+				strerror(errno));
+	}
 	/* bind */
 #if 0
        int bind(int sockfd, const struct sockaddr *addr,
@@ -77,7 +88,6 @@ int main(int argc, char *argv[])
                struct in_addr sin_addr;   /* internet address */
            };
 #endif
-	int ret;
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(8000);
@@ -100,7 +110,7 @@ int main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 	}
 	/* listen */
-	ret = listen(sockfd, 100);
+	ret = listen(sockfd, PTHREAD_MAXNUM);
 	if (0 > ret) {
 		fprintf(stderr, "listen error :%s\n",
 				strerror(errno));
@@ -113,7 +123,7 @@ int main(int argc, char *argv[])
 #endif
 	pthread_t ptrdid;
 	int i;
-	for (i = 0; 100 > i; i++) {
+	for (i = 0; PTHREAD_MAXNUM > i; i++) {
 		pthread_create(&ptrdid, NULL, pthread_func, NULL);
 		pthread_detach(ptrdid);
 	}
