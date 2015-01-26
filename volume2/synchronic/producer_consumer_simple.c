@@ -1,3 +1,17 @@
+/*
+ * pthread_mutex_lock         --|
+ *                              +--lock
+ * entry pthread_cond_wait    --|
+ *                              +--unlock and sleep
+ * return pthread_cond_wait   --|
+ *                              +--lock
+ * pthread_mutex_unlock       --+
+ *
+ * pthread_mutex_lock         -------------------------+
+ * pthread_cond_signal        ---- wakeup cond_wait    +--lock
+ * pthread_mutex_unlock       -------------------------+
+ */
+
 #include <stdio.h>
 #include <pthread.h>
 
