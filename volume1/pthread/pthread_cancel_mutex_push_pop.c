@@ -6,14 +6,24 @@
 /* init mutex */
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/* cleanup handle function */
+void mutex_cleanup(void *arg)
+{
+	fprintf(stdout, "this is cancelup oprated\n");
+	pthread_mutex_unlock((pthread_mutex_t*)arg);
+	return;
+}
+
 /* pthread1 */
 void *pthread1(void *arg)
 {
 	int ret;
 	pthread_mutex_lock(&mutex);
+	pthread_cleanup_push(mutex_cleanup, &mutex);
 	fprintf(stdout, "pthread1 got mutex\n");
 	sleep(3);
 	fprintf(stdout, "cancel pthread here not appear\n");
+	pthread_cleanup_pop(0);
 	pthread_mutex_unlock(&mutex);
 	pthread_exit(NULL);
 }
@@ -21,7 +31,7 @@ void *pthread1(void *arg)
 void *pthread2(void *arg)
 {
 	sleep(1);
-	pthread_cancel((pthread_t)arg);
+	//pthread_cancel((pthread_t)arg);
 	pthread_mutex_lock(&mutex);
 	fprintf(stdout, "pthread2 got mutex\n");
 	pthread_mutex_unlock(&mutex);
