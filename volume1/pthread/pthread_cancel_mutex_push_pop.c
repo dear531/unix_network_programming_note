@@ -31,7 +31,7 @@ void *pthread1(void *arg)
 void *pthread2(void *arg)
 {
 	sleep(1);
-	//pthread_cancel((pthread_t)arg);
+	pthread_cancel((pthread_t)arg);
 	pthread_mutex_lock(&mutex);
 	fprintf(stdout, "pthread2 got mutex\n");
 	pthread_mutex_unlock(&mutex);
