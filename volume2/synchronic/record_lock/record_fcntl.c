@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 			/* do */
 			pid_t chld_pid;
 			chld_pid = getpid();
+			record_lock(fd);
 			fprintf(stdout, "process %ld start\n", (long)chld_pid);
 			char buff[1024] = {0};
 			fprintf(stdout, "");
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
 			memset(buff, 0x00, strlen(buff));
 			sprintf(buff, "close process %ld\n", (long)chld_pid);
 			write(fd, buff, strlen(buff));
+			record_unlock(fd);
 			close(fd);
 			fprintf(stdout, "process %ld exit\n", (long)chld_pid);
 			/* exit */
