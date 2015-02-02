@@ -38,6 +38,13 @@ int main(int argc, char *argv[])
 		.l_start = 0,
 		.l_len = 0,
 	};
+	/* wrlock */
+	lock.l_type = F_WRLCK;
+	if (0 > fcntl(fd, F_SETLKW, &lock)) {
+		fprintf(stderr, "lock of fcntl error :%s\n",
+				strerror(errno));
+	}
+	fprintf(stdout, "parent wrlock\n");
 	for(i = 0; 10 > i; i++) {
 		if (0 > (pid = fork())) {
 			/* fork error */
@@ -65,7 +72,10 @@ int main(int argc, char *argv[])
 			sleep(2);
 			/* unlock */
 			fcntl(fd, F_SETLK, &unlock);
-			fprintf(stdout, "unlock\n");
+			if (lock.l_type == F_WRLCK)
+				fprintf(stdout, "release wrlock\n");
+			else
+				fprintf(stdout, "release rdlock\n");
 			/* close */
 			if (0 < fd) {
 				close(fd);
@@ -77,6 +87,10 @@ int main(int argc, char *argv[])
 			usleep(100 * 1000);
 		}
 	}
+	sleep(2);
+	/* unlock */
+	fcntl(fd, F_SETLK, &unlock);
+	fprintf(stdout, "parent unlock\n");
 	/* close */
 	if (0 < fd) {
 		close(fd);
