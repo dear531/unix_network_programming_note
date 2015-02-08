@@ -1,4 +1,4 @@
-target	:=semcreate semunlink semgetvalue semwait
+target	:=semcreate semunlink semgetvalue semwait sempost
 LIBS	:=-lpthread
 # $(foreach <var>;,<list>;,<text>;) 
 default:
