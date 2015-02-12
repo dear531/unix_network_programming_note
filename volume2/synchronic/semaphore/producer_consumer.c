@@ -46,17 +46,15 @@ int sem_post_func(sem_t *sem)
 }
 void *producer_pthread(void *arg)
 {
-	int i, count;
+	int i;
 	for ( ; ; ) {
 		sem_wait_func(shared.sem[MUTEX]);
 		sem_wait_func(shared.sem[NSTORE]);
-		for (i = 0, count = 0; SEM_NUM > i; i++) {
+		for (i = 0; SEM_NUM > i; i++) {
 			if (-1 == shared.buff[i]) {
 				shared.buff[i] = i;
 				fprintf(stdout, "producer :%d\n", i);
-				count++;
-				if (3 <= count)
-					break;
+				break;
 			}
 		}
 		sem_post_func(shared.sem[NEMPTY]);
