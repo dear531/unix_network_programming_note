@@ -15,6 +15,7 @@ enum sem_num {
 struct {
 	sem_t sem[SEM_MAX];
 	int buff[NBUFF];
+	int conput, proput;
 } shared;
 #if 0
 int sem_wait(sem_t *sem);
@@ -46,22 +47,30 @@ void *producer(void *arg)
 { 
 	int i;
 	for ( ; ; ) {
-		/* sem_wait for mutex */
-		sem_wait_func(&shared.sem[MUTEX]);
 		/* sem_wait for store */
 		sem_wait_func(&shared.sem[STORE]);
+		/* sem_wait for mutex */
+		sem_wait_func(&shared.sem[MUTEX]);
 		/* produced */
-		for ( i = 0; NBUFF > i; i++) {
-			if (-1 == shared.buff[i]) {
-				shared.buff[i] = i;
-				fprintf(stdout, "producer %d\n", i);
-				break;
-			}
+		if (NBUFF <= shared.proput) {
+			/* sem_post for mutex */
+			sem_post_func(&shared.sem[MUTEX]);
+			/* sem_post for empty */
+			sem_post_func(&shared.sem[EMPTY]);
+			pthread_exit(NULL);
+		} else if (-1 == shared.buff[shared.proput]) {
+			shared.buff[shared.proput] =
+				shared.proput;
+			shared.proput++;
+			fprintf(stdout, "produced %d\n",
+					shared.proput);
+		} else {
+			fprintf(stderr, "perfrom error\n");
 		}
-		/* sem_post for empty */
-		sem_post_func(&shared.sem[EMPTY]);
 		/* sem_post for mutex */
 		sem_post_func(&shared.sem[MUTEX]);
+		/* sem_post for empty */
+		sem_post_func(&shared.sem[EMPTY]);
 		usleep(100 * 1000);
 	}
 	pthread_exit(NULL);
@@ -70,22 +79,25 @@ void *consumer(void *arg)
 {
 	int i;
 	for ( ; ; ) {
-		/* sem_wait for mutex */
-		sem_wait_func(&shared.sem[MUTEX]);
 		/* sem_wait for store */
 		sem_wait_func(&shared.sem[EMPTY]);
+		/* sem_wait for mutex */
+		sem_wait_func(&shared.sem[MUTEX]);
 		/* consumer */
-		for (i = 0; NBUFF > i; i++) {
-			if (i == shared.buff[i]) {
-				shared.buff[i] = -1;
-				fprintf(stdout, "consumer %d\n", i);
-				break;
-			}
+		if (NBUFF <= shared.conput) {
+			pthread_exit(NULL);
+		} else if (-1 == shared.buff[shared.conput]) {
+			fprintf(stdout, "not produced\n");
+		} else if (shared.conput == shared.buff[shared.conput]) {
+			shared.buff[shared.conput] = -1;
+			shared.conput++;
+			fprintf(stdout, "consumer %d\n",
+					shared.conput);
 		}
-		/* sem_post for empty */
-		sem_post_func(&shared.sem[STORE]);
 		/* sem_post for mutex */
 		sem_post_func(&shared.sem[MUTEX]);
+		/* sem_post for empty */
+		sem_post_func(&shared.sem[STORE]);
 		usleep(100 * 1000);
 	}
 	pthread_exit(NULL);
@@ -111,23 +123,22 @@ int main(int argc, char *argv[])
 	for (i = 0; NBUFF > i; i++) {
 		shared.buff[i] = -1;
 	}
+	shared.conput = 0;
+	shared.proput = 0;
 	if (-1 == sem_post(&shared.sem[MUTEX])) {
 		fprintf(stderr, "sem_post error :%s\n",
 				strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	/* pthread creat */
-	pthread_t ptrd[2];
-	void *(*pthread_func[2])(void *) = {
+	pthread_t ptrd[5];
+	void *(*pthread_func[5])(void *) = {
+		producer,
+		producer,
+		producer,
 		producer,
 		consumer,
 	};
-	fprintf(stdout, "pthred_func[0]:%p, producer:%p, pthread_func + 0:%p\n",
-			pthread_func[0], producer,
-			pthread_func + 0);
-	fprintf(stdout, "pthred_func[1]:%p, consumer:%p, pthread_func + 1:%p\n",
-			pthread_func[1], consumer,
-			pthread_func + 1);
 	int ret;
 	int ptrd_num = sizeof(ptrd) / sizeof(*ptrd);
 	for (i = 0; ptrd_num > i; i++) {
