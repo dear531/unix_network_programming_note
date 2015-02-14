@@ -62,8 +62,8 @@ void *producer(void *arg)
 			shared.buff[shared.proput] =
 				shared.proput;
 			shared.proput++;
-			fprintf(stdout, "produced %d\n",
-					shared.proput);
+			fprintf(stdout, "ptid %ld produced %d\n",
+					(long)pthread_self(), shared.proput);
 		} else {
 			fprintf(stderr, "perfrom error\n");
 		}
@@ -85,14 +85,18 @@ void *consumer(void *arg)
 		sem_wait_func(&shared.sem[MUTEX]);
 		/* consumer */
 		if (NBUFF <= shared.conput) {
+			/* sem_post for mutex */
+			sem_post_func(&shared.sem[MUTEX]);
+			/* sem_post for empty */
+			sem_post_func(&shared.sem[STORE]);
 			pthread_exit(NULL);
 		} else if (-1 == shared.buff[shared.conput]) {
 			fprintf(stdout, "not produced\n");
 		} else if (shared.conput == shared.buff[shared.conput]) {
 			shared.buff[shared.conput] = -1;
 			shared.conput++;
-			fprintf(stdout, "consumer %d\n",
-					shared.conput);
+			fprintf(stdout, "ptid %ld consumer %d\n",
+					(long)pthread_self(), shared.conput);
 		}
 		/* sem_post for mutex */
 		sem_post_func(&shared.sem[MUTEX]);
@@ -131,14 +135,18 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	/* pthread creat */
-	pthread_t ptrd[5];
-	void *(*pthread_func[5])(void *) = {
+	void *(*pthread_func[])(void *) = {
 		producer,
 		producer,
 		producer,
 		producer,
 		consumer,
+		consumer,
+		consumer,
 	};
+	fprintf(stdout, "pnum :%ld\n",
+			(long)sizeof(pthread_func) / sizeof(*pthread_func));
+	pthread_t ptrd[sizeof(pthread_func) / sizeof(*pthread_func)];
 	int ret;
 	int ptrd_num = sizeof(ptrd) / sizeof(*ptrd);
 	for (i = 0; ptrd_num > i; i++) {
