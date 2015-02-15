@@ -136,13 +136,13 @@ int main(int argc, char *argv[])
 	}
 	/* pthread creat */
 	void *(*pthread_func[])(void *) = {
-		producer,
-		producer,
-		producer,
-		producer,
 		consumer,
 		consumer,
 		consumer,
+		producer,
+		producer,
+		producer,
+		producer,
 	};
 	fprintf(stdout, "pnum :%ld\n",
 			(long)sizeof(pthread_func) / sizeof(*pthread_func));

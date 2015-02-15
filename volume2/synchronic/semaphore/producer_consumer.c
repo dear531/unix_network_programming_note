@@ -48,8 +48,8 @@ void *producer_pthread(void *arg)
 {
 	int i;
 	for ( ; ; ) {
-		sem_wait_func(shared.sem[MUTEX]);
 		sem_wait_func(shared.sem[NSTORE]);
+		sem_wait_func(shared.sem[MUTEX]);
 		for (i = 0; SEM_NUM > i; i++) {
 			if (-1 == shared.buff[i]) {
 				shared.buff[i] = i;
@@ -57,8 +57,8 @@ void *producer_pthread(void *arg)
 				break;
 			}
 		}
-		sem_post_func(shared.sem[NEMPTY]);
 		sem_post_func(shared.sem[MUTEX]);
+		sem_post_func(shared.sem[NEMPTY]);
 		usleep(100 * 1000);
 	}
 	return NULL;
@@ -67,16 +67,16 @@ void *consumer_pthread(void *arg)
 {
 	int i;
 	for ( ; ; ) {
-		sem_wait_func(shared.sem[MUTEX]);
 		sem_wait_func(shared.sem[NEMPTY]);
+		sem_wait_func(shared.sem[MUTEX]);
 		for (i = 0; SEM_NUM > i; i++) {
 			if (i == shared.buff[i]) {
 				fprintf(stdout, "consumer :%d\n", i);
 				shared.buff[i] = -1;
 			}
 		}
-		sem_post_func(shared.sem[NSTORE]);
 		sem_post_func(shared.sem[MUTEX]);
+		sem_post_func(shared.sem[NSTORE]);
 		usleep(100 * 1000);
 	}
 	return NULL;
