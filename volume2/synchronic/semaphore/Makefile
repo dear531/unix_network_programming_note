@@ -1,5 +1,6 @@
 target	:=semcreate semunlink semgetvalue semwait sempost \
-producer_consumer filelock unnamefork producer_consumer_unname
+producer_consumer filelock unnamefork producer_consumer_unname \
+multiple_buff
 LIBS	:=-lpthread
 # $(foreach <var>;,<list>;,<text>;) 
 default:
