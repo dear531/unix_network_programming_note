@@ -1,4 +1,4 @@
-target	:=semcreate semrmid semsetvalue
+target	:=semcreate semrmid semsetvalue semgetvalue
 
 default:$(target)
 
