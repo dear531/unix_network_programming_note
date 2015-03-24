@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
 		for (i = 0; 10 > i; i++)
 			fprintf(stdout, "parent count :%d\n",
 					count[0]++);
+		msync(count, sizeof(*count), MS_SYNC | MS_INVALIDATE);
 		sem_post(sem);
 	} else {
 		/* child */
@@ -86,7 +87,8 @@ int main(int argc, char *argv[])
 	unlink(SEM_FILE);
 	/* munmap */
 	munmap(count, sizeof(*count));
-	/* unlink file for mmap FIXME */
+	/* unlink file for mmap */
+	unlink(MMAP_FILE);
 	return 0;
 failure:
 	if (-1 != lfd)
@@ -97,6 +99,7 @@ failure:
 	unlink(SEM_FILE);
 	/* munmap */
 	munmap(count, sizeof(*count));
-	/* unlink file for mmap FIXME */
+	/* unlink file for mmap */
+	unlink(MMAP_FILE);
 	exit(EXIT_FAILURE);
 }
