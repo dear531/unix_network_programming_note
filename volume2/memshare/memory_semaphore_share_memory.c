@@ -11,7 +11,7 @@ struct share {
 	sem_t sem;
 	int count;
 };
-#define SEMFILE	"semfile.sem"
+#define SEMFILE	"/dev/zero"
 int main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	int semfd = -1;
 	int i;
 	/* create file semaphore and count */
-	semfd = open(SEMFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	semfd = open(SEMFILE, O_RDWR);
 	if (-1 == semfd) {
 		fprintf(stderr, "line %d open error %s",
 				__LINE__, strerror(errno));
@@ -78,8 +78,6 @@ finish:
 		close(semfd);
 		semfd = -1;
 	}
-	/* unlink file semaphore and count */
-	unlink(SEMFILE);
 	exit(ret);
 failure:
 	ret = EXIT_FAILURE;
