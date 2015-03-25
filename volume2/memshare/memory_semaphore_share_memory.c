@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
 	pid_t pid;
-	struct share *pshare = NULL;
+	struct share *pshare = NULL, data;
+	pshare = &data;
 	int semfd = -1;
 	int i;
 	/* create file semaphore and count */
@@ -26,9 +27,7 @@ int main(int argc, char *argv[])
 				__LINE__, strerror(errno));
 		goto failure;
 	}
-	for (i = 0; sizeof(*pshare) > i; i++) {
-		write(semfd, "0", sizeof("0"));
-	}
+	write(semfd, &data, sizeof(data));
 	/* mmap for semaphore and count */
 	pshare = mmap(NULL, sizeof(*pshare), PROT_READ | PROT_WRITE,
 			MAP_SHARED, semfd, 0);
