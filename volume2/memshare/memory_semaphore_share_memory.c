@@ -11,26 +11,16 @@ struct share {
 	sem_t sem;
 	int count;
 };
-#define SEMFILE	"/dev/zero"
 int main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
 	pid_t pid;
 	struct share *pshare = NULL, data;
 	pshare = &data;
-	int semfd = -1;
 	int i;
-	/* create file semaphore and count */
-	semfd = open(SEMFILE, O_RDWR);
-	if (-1 == semfd) {
-		fprintf(stderr, "line %d open error %s",
-				__LINE__, strerror(errno));
-		goto failure;
-	}
-	write(semfd, &data, sizeof(data));
 	/* mmap for semaphore and count */
 	pshare = mmap(NULL, sizeof(*pshare), PROT_READ | PROT_WRITE,
-			MAP_SHARED, semfd, 0);
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (MAP_FAILED == pshare) {
 		fprintf(stderr, "line %d mmap error :%s\n",
 				__LINE__, strerror(errno));
@@ -73,11 +63,7 @@ finish:
 		goto failure;
 	}
 	pshare = NULL;
-	/* close file descriptor for semaphore and count */
-	if (-1 != semfd) {
-		close(semfd);
-		semfd = -1;
-	}
+	/* unlink file semaphore and count */
 	exit(ret);
 failure:
 	ret = EXIT_FAILURE;
