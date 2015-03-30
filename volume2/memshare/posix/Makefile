@@ -1,4 +1,4 @@
-target	:=shmcreate shmunlink
+target	:=shmcreate shmunlink shmwrite shmread
 LIBS	:=-lrt
 # $(foreach <var>;,<list>;,<text>;) 
 default:
