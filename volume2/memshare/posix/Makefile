@@ -1,4 +1,5 @@
-target	:=shmcreate shmunlink shmwrite shmread
+target	:=shmcreate shmunlink shmwrite shmread \
+chid_parent_memory_position
 LIBS	:=-lrt
 # $(foreach <var>;,<list>;,<text>;) 
 default:
