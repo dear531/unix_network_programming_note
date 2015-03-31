@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 		goto failure;
 	}
 	/* shmget */
-	if (-1 == shmget(key, sizeof(int),
+	if (-1 == shmget(key, BUFSIZ,
 			IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR)) {
 		fprintf(stderr, "shmget error :%s\n",
 				strerror(errno));

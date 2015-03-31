@@ -1,4 +1,4 @@
-target	:=shmget shmrmid
+target	:=shmget shmrmid shmwrite shmread
 LIBS	:=-lrt
 # $(foreach <var>;,<list>;,<text>;) 
 default:
